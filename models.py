@@ -23,6 +23,12 @@ class SmartConnectClient(Reporter):
 	
     #firmware version of smart connect device
     fw_version = models.CharField(null=False, max_length=20)
+    
+    #is this device currently alerting?
+    alert_status = models.BooleanField(default=False)
+    
+    #Current temperature (in K)
+    current_temp = models.PositiveIntegerField(null=False, default=0)
 	
     def __unicode__(self):
         if self.connection():
