@@ -20,7 +20,7 @@ class App (rapidsms.app.App):
     alt_pat = re.compile(r'([A-Z]{3}),(0|1),(\d+),(\d+),(\d+)', re.IGNORECASE)
 
     #compiled regex for config strings
-    cfg_pat = re.compile(r'(0|1),(\d+),(\d+),(\d+),(\d+),(\d+),(\d+),(\d+)', re.IGNORECASE)
+    cfg_pat = re.compile(r'[A-Z]{3},(0|1),(\d+),(\d+),(\d+),(\d+),(\d+),(\d+),(\d+)', re.IGNORECASE)
     
     def start (self):
         """Configure your app in the start phase."""

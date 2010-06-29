@@ -12,6 +12,18 @@ from rapidsms.webui.utils import *
 from smartconnect.models import *
 from reporters.utils import *
 
+#If using matplotlib for graphing stuff
+import random
+import time
+import datetime
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+from matplotlib.figure import Figure
+from matplotlib.dates import DateFormatter
+
+#if using cairoplot for graphing stuff
+import os, tempfile, cairo
+import cairoplot
+
 def index(req):
     return render_to_response(req,
         "smartconnect/index.html", {
@@ -22,65 +34,71 @@ def index(req):
 
 @require_http_methods(["GET", "POST"])  
 def edit_device(req, pk):
-    rep = get_object_or_404(SmartConnectClient, pk=pk)
+    device = get_object_or_404(SmartConnectClient, pk=pk)
     
     def get(req):
         return render_to_response(req,
             "smartconnect/device.html", {
                 
                 # display paginated reporters in the left panel
-                "reporters": paginated(req, SmartConnectClient.objects.all()),
-                "reporter":    rep })
+                "smartconnectdevice":    device })
     
-    @transaction.commit_manually
-    def post(req):
-        
-        # if DELETE was clicked... delete
-        # the object, then and redirect
-        if req.POST.get("delete", ""):
-            pk = rep.pk
-            rep.delete()
-            
-            transaction.commit()
-            return message(req,
-                "SmartConnect Device %d deleted" % (pk),
-                link="/smartconnect")
-                
-        else:
-            # check the form for errors (just
-            # missing fields, for the time being)
-            errors = check_reporter_form(req)
-            
-            # if any fields were missing, abort. this is
-            # the only server-side check we're doing, for
-            # now, since we're not using django forms here
-            if errors["missing"]:
-                transaction.rollback()
-                return message(req,
-                    "Missing Field(s): %s" %
-                        ", ".join(errors["missing"]),
-                    link="/reporters/%s" % (rep.pk))
-            
-            try:
-                # automagically update the fields of the
-                # reporter object, from the form
-                update_via_querydict(rep, req.POST).save()
-                update_reporter(req, rep)
-                
-                # no exceptions, so no problems
-                # commit everything to the db
-                transaction.commit()
-                
-                # full-page notification
-                return message(req,
-                    "Reporter %d updated" % (rep.pk),
-                    link="/reporters")
-            
-            except Exception, err:
-                transaction.rollback()
-                raise
-        
     # invoke the correct function...
     # this should be abstracted away
     if   req.method == "GET":  return get(req)
     elif req.method == "POST": return post(req)
+
+
+
+def matplotlib_sample(request):
+
+    fig=Figure()
+    ax=fig.add_subplot(111)
+    x=[]
+    y=[]
+    now=datetime.datetime.now()
+    delta=datetime.timedelta(days=1)
+    for i in range(10):
+        x.append(now)
+        now+=delta
+        y.append(random.randint(0, 1000))
+    ax.plot_date(x, y, '-')
+    ax.xaxis.set_major_formatter(DateFormatter('%Y-%m-%d'))
+    fig.autofmt_xdate()
+    canvas=FigureCanvas(fig)
+    response=HttpResponse(content_type='image/png')
+    canvas.print_png(response)
+    return response
+
+def cairoplot_sample(request):
+    filename = tempfile.mkstemp(suffix='.png')[1]
+    data = [[1,2,3],[4,5,6],[7,8,9]]
+    test = cairoplot.HorizontalBarPlot(filename, data, 640, 480)
+    test.render()
+    test.commit()
+    fo = open(filename)
+    data = fo.read()
+    fo.close()
+    os.unlink(filename)
+    return HttpResponse(data, mimetype="image/png")
+
+def render_image(drawer, width, height):
+    # We render to a temporary file, since Cairo can't stream nicely
+    filename = tempfile.mkstemp()[1]
+    # We render to a generic Image, being careful not to use colour hinting
+    surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, int(width), int(height))
+    font_options = surface.get_font_options()
+    font_options.set_antialias(cairo.ANTIALIAS_GRAY)
+    context = cairo.Context(surface)
+    # Call our drawing function on that context, now.
+    drawer(context)
+    # Write the PNG data to our tempfile
+    surface.write_to_png(filename)
+    surface.finish()
+    # Now stream that file's content back to the client
+    fo = open(filename)
+    data = fo.read()
+    fo.close()
+    os.unlink(filename)
+    return HttpResponse(data, mimetype="image/png")
+

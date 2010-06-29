@@ -11,14 +11,56 @@
 
 {% block content %}
 <div class="module">
-
-<div>
-Hello1
+<div class="top">
+    <h2>{% trans "Device Details" %}</h2>
+    <table>
+        <thead>
+            <tr>
+                <th style= "text-align:{% trans 'right;' %} scope="col"></th>
+                <th style= "text-align:{% trans 'left;' %} scope="col"></th>
+                <th style= "text-align:{% trans 'left;' %} scope="col"></th>
+                <th style= "text-align:{% trans 'right;' %} scope="col"></th>
+                <th style= "text-align:{% trans 'left;' %} scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>    
+            <tr>
+                <td>Device IMEI:</td>
+                <td>{% if smartconnectdevice.alias %}{{ smartconnectdevice.alias }}{% else %}<span class="na">{% trans "n/a" %}</span>{% endif %}</td>
+                <td></td>
+                <td>Report Frequency:</td>
+                <td>{{ smartconnectdevice.report_freq }}</td>
+            </tr>
+            <tr>
+                <td>Firmware Version:</td>
+                <td>{{ smartconnectdevice.fw_version }}</td>
+                <td></td>
+                <td>Alert Frequency:</td>
+                <td>{{ smartconnectdevice.alert_freq }}</td>
+            </tr>
+            <tr>
+                <td>Alert Status:</td>
+                <td>{{ smartconnectdevice.alert_status }}</td>
+                <td></td>
+                <td>High Temp. Threshold:</td>
+                <td>{{ smartconnectdevice.high_thresh }}</td>
+            </tr>
+            <tr>
+                <td>Current Temp.:</td>
+                <td>{{ smartconnectdevice.current_temp }}</td>
+                <td></td>
+                <td>Low Temp. Threshold:</td>
+                <td>{{ smartconnectdevice.low_thresh }}</td>           
+            </tr>
+        </tbody>
+    </table>
 </div>
 
-<div>
-Hello2
+<div class="bottom">    
+    <h2>{% trans "Temperature History" %}</h2>
+    Graph goes here
 </div>
+
 
 </div>
 {% endblock %}

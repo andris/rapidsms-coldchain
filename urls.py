@@ -7,5 +7,7 @@ import smartconnect.views as views
 
 urlpatterns = patterns('',
     url(r'^smartconnect$',             views.index),
+    url(r'^smartconnect/matplotlib_sample$',             views.matplotlib_sample),
+    url(r'^smartconnect/cairoplot_sample$',             views.cairoplot_sample),
     url(r'^smartconnect/(?P<pk>\d+)$', views.edit_device, name="view-device"),
 )
