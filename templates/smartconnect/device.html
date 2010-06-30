@@ -1,5 +1,6 @@
 {% extends base_template %}
 {% load reporters-tags %}
+{% load smartconnect-tags %}
 {% load pagination-tags %}
 {% load i18n %}
 {% block title %}{% trans "SmartConnect Device View" %}{% endblock %}
@@ -7,6 +8,13 @@
 {% block javascripts %}
 <script type="text/javascript" src="/static/reporters/javascripts/clear-form-elements.js"></script>
 <script type="text/javascript" src="/static/reporters/javascripts/cloneable.js"></script>
+<script type="text/javascript" src="/static/smartconnect/flot/jquery.js"></script>
+<script type="text/javascript" src="/static/smartconnect/flot/jquery.flot.js"></script>
+<script type="text/javascript" src="/static/smartconnect/flot/jquery.flot.selection.js"></script>
+<script type="text/javascript" src="/static/smartconnect/flot/jquery.flot.threshold.js"></script>
+<script type="text/javascript" src="/static/smartconnect/plugin/jquery.flot.threshold.multiple.js"></script>
+<!--[if IE]><script type="text/javascript" src="/static/webapp/javascripts/excanvas.pack.js"></script>
+<![endif]-->
 {% endblock %}
 
 {% block content %}
@@ -14,16 +22,7 @@
 <div class="top">
     <h2>{% trans "Device Details" %}</h2>
     <table>
-        <thead>
-            <tr>
-                <th style= "text-align:{% trans 'right;' %} scope="col"></th>
-                <th style= "text-align:{% trans 'left;' %} scope="col"></th>
-                <th style= "text-align:{% trans 'left;' %} scope="col"></th>
-                <th style= "text-align:{% trans 'right;' %} scope="col"></th>
-                <th style= "text-align:{% trans 'left;' %} scope="col"></th>
-            </tr>
-        </thead>
-        <tbody>    
+        <tbody>
             <tr>
                 <td>Device IMEI:</td>
                 <td>{% if smartconnectdevice.alias %}{{ smartconnectdevice.alias }}{% else %}<span class="na">{% trans "n/a" %}</span>{% endif %}</td>
@@ -52,16 +51,74 @@
                 <td>Low Temp. Threshold:</td>
                 <td>{{ smartconnectdevice.low_thresh }}</td>           
             </tr>
+            <tr>
+                <td>Last Report:</td>
+                <td>{{ smartconnectdevice.last_seen|to_local_time }}</td>
+                <td></td>
+                <td>Phone number:</td>
+                <td>{{ smartconnectdevice.connection.identity }}</td>
+            </tr>
         </tbody>
     </table>
 </div>
 
 <div class="bottom">    
     <h2>{% trans "Temperature History" %}</h2>
-    Graph goes here
+
+    <div id="graph" style="width:600px;height:300px;"></div>
+    <div id="overview_graph" style="margin-left:50px;margin-top:20px;width:400px;height:50px"></div>
+    
+    <script id="source" language="javascript" type="text/javascript">
+    $(function () {
+        var d = [];
+        
+        {% for report in reports %}
+            d.push([ {{ report.time|to_js_timestamp }}, {{ report.value }}]);
+        {% endfor %}
+        
+        //Set our graph options here
+        var options = {
+            series: {
+                color: "rgb(0, 200, 0)",
+                threshold: { below: 100, color: "rgb(20, 20, 200)", above: 160, color: "rgb(20, 20, 200)" },
+            },
+            points: { show: true },
+            lines: { show: true, steps: true},
+            xaxis: { mode: "time" },
+            selection: { mode: "x" },
+        };
+        
+        var plot = $.plot($("#graph"), [d], options)
+        
+        var overview = $.plot($("#overview_graph"), [d], {
+            series: {
+                lines: { show: true, steps:true, lineWidth: 1 },
+                shadowSize: 0
+            },
+            xaxis: { ticks: [], mode: "time" },
+            yaxis: { ticks: [], min: 0, autoscaleMargin: 0.1 },
+            selection: { mode: "x" }
+        });
+
+        $("#graph").bind("plotselected", function (event, ranges) {
+            // do the zooming
+            plot = $.plot($("#graph"), [d],
+                        $.extend(true, {}, options, {
+                            xaxis: { min: ranges.xaxis.from, max: ranges.xaxis.to }
+                        }));
+ 
+            // don't fire event on the overview to prevent eternal loop
+            overview.setSelection(ranges, true);
+        });
+    
+        $("#overview_graph").bind("plotselected", function (event, ranges) {
+            plot.setSelection(ranges);
+        });
+    
+    });    
+    </script>
+    
 </div>
-
-
 </div>
 {% endblock %}
 
