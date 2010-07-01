@@ -1,0 +1,52 @@
+{% extends "smartconnect/smartconnect_base.html" %}
+{% load reporters-tags %}
+{% load smartconnect-tags %}
+{% load pagination-tags %}
+{% load i18n %}
+{% block title %}{% trans "Test form" %}{% endblock %}
+
+{% block content %}
+
+<h2 style= "text-align:{% trans 'left;' %}">{% trans "Edit" %} {{ device.full_name }}</h2>
+
+<div class="module">
+    <form action="/smartconnect/edit/{{ smartconnectdevice.pk }}" method="post">
+    <label>{% trans "Device Name" %}</label>
+    <div>
+        <div>
+        {{ form.first_name }}
+        <label class="suffix">{% trans "First Name" %}</label>
+        </div>
+        {{ form.last_name }}
+        <label class="suffix">{% trans "Last Name" %}</label>
+    <div>
+    
+    <label>{% trans "Thresholds" %}</label>
+    <div>
+        <div>
+        {{ form.low_thresh }}
+        <label class="suffix">{% trans "Low Temperature" %} (&deg;C)</label>
+        </div>
+        {{ form.high_thresh }}     
+        <label class="suffix">{% trans "High Temperature" %} (&deg;C)</label>    
+    </div>
+    
+    <label>{% trans "Reporting Frequency" %}</label>
+    <div>
+        <div>
+        {{ form.report_freq }}     
+        <label class="suffix">{% trans "Standard" %}</label>
+        </div>
+        {{ form.alert_freq }}
+        <label class="suffix">{% trans "Alert" %}</label>
+    </div>
+
+    <div class="submit">
+        <input type="submit" name="submit" value="{% trans 'Submit' %}" />
+        <input type="submit" name="cancel" value="{% trans 'Cancel' %}" />
+    </div>
+
+    </form>
+</div>
+{% endblock %}
+

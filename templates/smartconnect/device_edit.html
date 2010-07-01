@@ -1,0 +1,55 @@
+{% extends "smartconnect/smartconnect_base.html" %}
+{% load reporters-tags %}
+{% load smartconnect-tags %}
+{% load pagination-tags %}
+{% load i18n %}
+{% block title %}{% trans "SmartConnect - Delete Device" %}{% endblock %}
+
+{% block content %}
+<div class="module">
+
+<h2 style= "text-align:{% trans 'left;' %}">{% trans "Edit" %} {{ smartconnectdevice.full_name }}</h2>
+
+<form method="post" id="fm-device-edit" action="/smartconnect/edit/{{ smartconnectdevice.pk }}">
+<div>
+    <label>{% trans "Device Name" %}</label>
+    <div>
+        <input type="text" id="fm-device-edit-first_name" size="30" name="first_name" value="{{ smartconnectdevice.first_name }}" />
+        <label for="fm-device-edit-first_name" class="suffix">{% trans "First" %}<span class="acc"> {% trans "Name" %}</span></label>
+    </div>
+    <div>
+        <input type="text" id="fm-device-edit-last_name" size="30" name="last_name" value="{{ smartconnectdevice.last_name }}" />
+        <label for="fm-device-edit-last_name" class="suffix">{% trans "Last" %}<span class="acc"> {% trans "Name" %}</span></label>
+    </div>
+    
+    <label>{% trans "Thresholds" %}</label>
+    <div>
+        <input type="text" id="fm-device-edit-low_temp" size="5" name="low_temp" value="{{ smartconnectdevice.low_thresh|to_celcius }}" />
+        <label for="fm-device-edit-low_temp" class="suffix">{% trans "Low Temperature" %} (&deg;C)</span></label>        
+    </div>
+    <div>
+        <input type="text" id="fm-device-edit-high_temp" size="5" name="low_temp" value="{{ smartconnectdevice.high_thresh|to_celcius }}" />
+        <label for="fm-device-edit-high_temp" class="suffix">{% trans "High Temperature" %} (&deg;C)</span></label>
+    </div>
+
+    <label>{% trans "Reporting Frequency" %}</label>
+    <div>
+        <input type="text" id="fm-device-edit-rpt_freq" size="5" name="low_temp" value="{{ smartconnectdevice.report_freq }}" />
+        <label for="fm-device-edit-rpt_freq" class="suffix">{% trans "Standard" %}</span></label>
+    </div>
+    <div>
+        <input type="text" id="fm-device-edit-alt_freq" size="5" name="low_temp" value="{{ smartconnectdevice.alert_freq }}" />
+        <label for="fm-device-edit-alt_freq" class="suffix">{% trans "Alert" %}</span></label>
+    </div>
+</div>
+
+<div class="submit">
+    <input type="submit" name="submit" value="{% trans 'Submit' %}" />           
+    <input type="submit" name="cancel" value="{% trans 'Cancel' %}" />           
+</div>
+
+</form>
+
+</div>
+{% endblock %}
+

@@ -1,7 +1,9 @@
-{% extends base_template %}
+{% extends "smartconnect/smartconnect_base.html" %}
 {% load reporters-tags %}
+{% load smartconnect-tags %}
 {% load pagination-tags %}
 {% load i18n %}
+
 {% block title %}{% trans "SmartConnect" %}{% endblock %}
 
 {% block javascripts %}
@@ -29,7 +31,7 @@
                 <td>{% if smartconnectdevice.alias %}{{ smartconnectdevice.alias }}{% else %}<span class="na">{% trans "n/a" %}</span>{% endif %}</td>
                 <td>{{ smartconnectdevice.alert_status }}</td>
                 <td>{{ smartconnectdevice.is_configured }}</td>
-                <td>{{ smartconnectdevice.current_temp }}</td>
+                <td>{{ smartconnectdevice.current_temp|to_celcius }}&deg C</td>
                 <td>{{ smartconnectdevice.last_seen|last_seen }}</td>
             </tr>{% endfor %}{% else %}
             <tr class="no-data">

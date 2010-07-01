@@ -99,8 +99,19 @@ class App (rapidsms.app.App):
                 + " FW Ver " + report_fw)
             
             #Check if this SmartConnect device exists
-            if((len(SmartConnectClient.objects.filter(alias=report_imei))) > 0):
+            matching_devices=SmartConnectClient.objects.filter(alias=report_imei)
+            #if((len(SmartConnectClient.objects.filter(alias=report_imei))) > 0):
+            if((len(matching_devices)) > 0):
                 self.debug("CFG: Received CFG for existing client")
+                matched_device=matching_devices[0]
+                matched_device.is_configured=report_is_configured
+                matched_device.low_thresh=report_low_thresh
+                matched_device.high_thresh=report_high_thresh
+                matched_device.report_freq=report_rpt_freq
+                matched_device.alert_freq=report_alt_freq
+                matched_device.timeout=report_timeout
+                matched_device.fw_version=report_fw
+                matched_device.save()
             
             #We've never seen this IMEI, register the
             #new device    

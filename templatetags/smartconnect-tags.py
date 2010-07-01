@@ -17,6 +17,14 @@ def to_js_timestamp(value):
         return ''
 
 @register.filter
+def to_celcius(kelvin_temp):
+    return int( kelvin_temp - 273 )
+
+@register.filter
+def to_kelvin(celcius_temp):
+    return int( celcius_temp + 273 )
+
+@register.filter
 def to_local_time(value):
     try:
         #return pytz.utc.localize(value)
