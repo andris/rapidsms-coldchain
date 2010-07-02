@@ -1,9 +1,11 @@
 import rapidsms
 from rapidsms.parsers.keyworder import *
+from rapidsms.utils import *
 
 import re
 from models import *
 from datetime import datetime
+import os
 
 class App (rapidsms.app.App):
 
@@ -97,10 +99,11 @@ class App (rapidsms.app.App):
                 + " timeout " + str(report_timeout)
                 + " IMEI " + str(report_imei)
                 + " FW Ver " + report_fw)
+                
             
             #Check if this SmartConnect device exists
             matching_devices=SmartConnectClient.objects.filter(alias=report_imei)
-            #if((len(SmartConnectClient.objects.filter(alias=report_imei))) > 0):
+
             if((len(matching_devices)) > 0):
                 self.debug("CFG: Received CFG for existing client")
                 matched_device=matching_devices[0]
@@ -150,8 +153,9 @@ class App (rapidsms.app.App):
             report_type = response.group(1)
             report_value = int(response.group(2))
             #Need to update to take message sent time
-            #report_time = datetime.now()
+            #report_time = datetime.utcnow()
             report_time = message.date
+            #report_time = to_naive_utc_dt(message.date)
             report_is_acknowledged = False
 
             if message.reporter:
@@ -181,6 +185,11 @@ class App (rapidsms.app.App):
             if ( report.type == "tmp" ):
                 smart_connect_device.current_temp=report.value
             smart_connect_device.save()
+            
+            self.debug("system TIME_ZONE is %s" % os.environ['TZ'])
+            self.debug("message.date is %s" % str(message.date))
+            temp_last_seen=smart_connect_device.last_seen()
+            self.debug("device.last_seen is %s" % temp_last_seen)
 
         else:
             self.debug("NO MATCHES IN RPT STRING")
