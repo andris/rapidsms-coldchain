@@ -19,46 +19,7 @@
 {% block content %}
 <div class="module">
 <div class="top">
-    <h2>{% trans "Device Details" %}</h2>
-    <table>
-        <tbody>
-            <tr>
-                <td>Device IMEI:</td>
-                <td>{% if smartconnectdevice.alias %}{{ smartconnectdevice.alias }}{% else %}<span class="na">{% trans "n/a" %}</span>{% endif %}</td>
-                <td></td>
-                <td>Report Frequency:</td>
-                <td>{{ smartconnectdevice.report_freq }} min.</td>
-            </tr>
-            <tr>
-                <td>Firmware Version:</td>
-                <td>{{ smartconnectdevice.fw_version }}</td>
-                <td></td>
-                <td>Alert Frequency:</td>
-                <td>{{ smartconnectdevice.alert_freq }} min.</td>
-            </tr>
-            <tr>
-                <td>Alert Status:</td>
-                <td>{{ smartconnectdevice.alert_status }}</td>
-                <td></td>
-                <td>High Temp. Threshold:</td>
-                <td>{{ smartconnectdevice.high_thresh|to_celcius  }}&deg C</td>
-            </tr>
-            <tr>
-                <td>Current Temp.:</td>
-                <td>{{ smartconnectdevice.current_temp|to_celcius }}&deg C</td>
-                <td></td>
-                <td>Low Temp. Threshold:</td>
-                <td>{{ smartconnectdevice.low_thresh|to_celcius  }}&deg C</td>           
-            </tr>
-            <tr>
-                <td>Last Report:</td>
-                <td>{{ smartconnectdevice.last_seen|to_local_time }}</td>
-                <td></td>
-                <td>Phone number:</td>
-                <td>{{ smartconnectdevice.connection.identity }}</td>
-            </tr>
-        </tbody>
-    </table>
+    {% device_details smartconnectdevice %}
 </div>
 
 <div class="toolbar">
@@ -80,50 +41,59 @@
             d.push([ {{ report.time|to_js_timestamp }}, {{ report.value|to_celcius }}]);
         {% endfor %}
         
-        // setup background shading for high and low thresholds
-        var markings = [
-            { color: '#CAD1E8', yaxis: { to: {{ smartconnectdevice.low_thresh|to_celcius}} } },
-            { color: '#E8CACD', yaxis: { from: {{ smartconnectdevice.high_thresh|to_celcius}} } },
-        ];        
+        //If we have no data, don't plot
+        if (d.length==0)
+        {
+        }
+        
+        //Otherwise, go ahead and draw
+        else
+        {
+        
+            // setup background shading for high and low thresholds
+            var markings = [
+                { color: '#CAD1E8', yaxis: { to: {{ smartconnectdevice.low_thresh|to_celcius}} } },
+                { color: '#E8CACD', yaxis: { from: {{ smartconnectdevice.high_thresh|to_celcius}} } },
+            ];        
                 
-        //Set our graph options here
-        var options = {
-            series: {
-            },
-            points: { show: true },
-            lines: { show: true, steps: true},
-            xaxis: { mode: "time" },
-            selection: { mode: "x" },
-            grid: { markings: markings },
-        };
+            //Set our graph options here
+            var options = {
+                series: {
+                },
+                points: { show: true },
+                lines: { show: true, steps: true},
+                xaxis: { mode: "time" },
+                selection: { mode: "x" },
+                grid: { markings: markings },
+            };
         
-        var plot = $.plot($("#graph"), [d], options)
+            var plot = $.plot($("#graph"), [d], options)
         
-        var overview = $.plot($("#overview_graph"), [d], {
-            series: {
-                lines: { show: true, steps:true, lineWidth: 1 },
-                shadowSize: 0
-            },
-            xaxis: { ticks: [], mode: "time" },
-            yaxis: { ticks: [], min: 0, autoscaleMargin: 0.1 },
-            selection: { mode: "x" }
-        });
-
-        $("#graph").bind("plotselected", function (event, ranges) {
-            // do the zooming
-            plot = $.plot($("#graph"), [d],
-                        $.extend(true, {}, options, {
-                            xaxis: { min: ranges.xaxis.from, max: ranges.xaxis.to }
-                        }));
+            var overview = $.plot($("#overview_graph"), [d], {
+                series: {
+                    lines: { show: true, steps:true, lineWidth: 1 },
+                    shadowSize: 0
+                },
+                xaxis: { ticks: [], mode: "time" },
+                yaxis: { ticks: [], min: 0, autoscaleMargin: 0.1 },
+                selection: { mode: "x" }
+            });
+    
+            $("#graph").bind("plotselected", function (event, ranges) {
+                // do the zooming
+                plot = $.plot($("#graph"), [d],
+                            $.extend(true, {}, options, {
+                                xaxis: { min: ranges.xaxis.from, max: ranges.xaxis.to }
+                            }));
  
-            // don't fire event on the overview to prevent eternal loop
-            overview.setSelection(ranges, true);
-        });
+                // don't fire event on the overview to prevent eternal loop
+                overview.setSelection(ranges, true);
+            });
     
-        $("#overview_graph").bind("plotselected", function (event, ranges) {
-            plot.setSelection(ranges);
-        });
-    
+            $("#overview_graph").bind("plotselected", function (event, ranges) {
+                plot.setSelection(ranges);
+            });
+        }
     });    
     </script>
     

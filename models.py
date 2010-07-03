@@ -28,7 +28,7 @@ class SmartConnectClient(Reporter):
     alert_status = models.BooleanField(default=False)
     
     #Current temperature (in K)
-    current_temp = models.PositiveIntegerField(null=False, default=0)
+    current_temp = models.PositiveIntegerField(null=False, default=273)
 	
     def __unicode__(self):
         if self.connection():

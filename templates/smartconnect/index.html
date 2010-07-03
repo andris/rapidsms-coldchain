@@ -36,24 +36,18 @@
             </tr>{% endfor %}{% else %}
             <tr class="no-data">
                 <td colspan="6">
-                    {% trans "No SmartConnect Devices Yet." %}
-                    <a href="/reporters/add" class="add">
-                        {% trans "Add a Device" %}
-                    </a>
+                    {% trans "No registered devices - new devices register automatically on startup" %}
                 </td>
             </tr>{% endif %}
         </tbody>
         <tfoot>
             <tr>
-                <td colspan="3">
+                <td colspan="6">
                     {% paginator smartconnectclients %}
                 </td>
             </tr>
         </tfoot>
     </table>
-    <div class="toolbar">
-        <a href="/reporters/add" class="add">{% trans "Add a Device" %}</a>
-    </div>
 </div>
 {% endblock %}
 

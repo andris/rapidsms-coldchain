@@ -10,6 +10,10 @@ from django import template
 
 register = template.Library()
 
+@register.inclusion_tag("smartconnect/partials/device_details.html")
+def device_details(smartconnectdevice):
+    return { "smartconnectdevice": smartconnectdevice }
+
 @register.filter
 def to_js_timestamp(value):
     try:
