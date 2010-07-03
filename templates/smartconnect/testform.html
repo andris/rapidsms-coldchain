@@ -10,7 +10,7 @@
 <h2 style= "text-align:{% trans 'left;' %}">{% trans "Edit" %} {{ device.full_name }}</h2>
 
 <div class="module">
-    <form action="/smartconnect/edit/{{ smartconnectdevice.pk }}" method="post">
+    <form action="/smartconnect/testform/{{ device.pk }}" method="post">
     <label>{% trans "Device Name" %}</label>
     <div>
         <div>

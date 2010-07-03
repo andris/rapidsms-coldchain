@@ -113,18 +113,28 @@ def django_form(req, pk):
     def get(req):
         
         return render_to_response(req,'smartconnect/testform.html', {
-            'form': form,
+            'form':     form,
             "device":   device,
-            "reports":              reports
+            "reports":  reports
         })
         
     def post(req):
-        return render_to_response(req,'smartconnect/testform.html', {
-            'form': form,
-            "device":   device,
-            "reports":              reports
-        }) 
-
+        if form.is_valid():
+            form.save()
+            
+            return message(req,
+                "SmartConnect IMEI:  %s successfully edited, new config sent to device" % (device.alias),
+                link="/smartconnect")
+                
+        else:
+            print("DEBUG FORM: %s" % form.is_valid())
+            return render_to_response(req,'smartconnect/errors.html', {
+                'errors':       form.errors,
+                'form':         form,
+            })
+            #return message(req,
+            #    "SmartConnect IMEI:  form input not valid, config NOT sent to device:  %s " % (form.errors),
+            #    link="/smartconnect")
 
     # invoke the correct function...
     # this should be abstracted away
