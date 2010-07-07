@@ -9,6 +9,7 @@ from django.shortcuts import get_object_or_404
 from django.db import transaction
 
 from rapidsms.webui.utils import *
+from rapidsms import Message
 from smartconnect.models import *
 from smartconnect.forms import *
 from reporters.utils import *
@@ -78,63 +79,49 @@ def delete_device(req, pk):
 
 def edit_device(req, pk):
     device = get_object_or_404(SmartConnectClient, pk=pk)
-    reports = SmartConnectReport.objects.filter(reporting_device=device)
+    #device = SmartConnectClient.objects.get(pk=pk)
 
     def get(req):
-        return render_to_response(req,
-            "smartconnect/device_edit.html", {
-            "smartconnectdevice":   device,
-            "reports":              reports
-        })
-
-    def post(req):
-        # if DELETE was clicked... delete
-        # the object, then and redirect
-        if req.POST.get("delete", ""):
-            alias = device.alias
-
-            return message(req,
-                "SmartConnect IMEI:  %s deleted" % (alias),
-                link="/smartconnect")
-
-        else:
-            return index(req)
-
-    # invoke the correct function...
-    # this should be abstracted away
-    if   req.method == "GET":  return get(req)
-    elif req.method == "POST": return post(req)
-
-def django_form(req, pk):
-    device = get_object_or_404(SmartConnectClient, pk=pk)
-    reports = SmartConnectReport.objects.filter(reporting_device=device)
-    form = SmartConnectDeviceForm(instance = device)
-
-    def get(req):
-        
-        return render_to_response(req,'smartconnect/testform.html', {
+        form = SmartConnectDeviceForm(instance=device)
+  
+        return render_to_response(req,'smartconnect/device_edit.html', {
             'form':     form,
             "device":   device,
-            "reports":  reports
         })
         
     def post(req):
+        form = SmartConnectDeviceForm(req.POST, instance=device)
+
         if form.is_valid():
             form.save()
+            
+            #prepare the config string to send to device
+            config_string='@CFG SYS,1,%(low)d,%(high)d,%(rpt_freq)d,%(alt_freq)d,0!' % {
+                'low': device.low_thresh,
+                'high': device.high_thresh,
+                'rpt_freq': device.report_freq,
+                'alt_freq': device.alert_freq
+            }
+             
+            print("DEBUG config message: %s" % config_string)
+            
+            config_message=Message(
+                connection=device.connection(),
+                text=config_string)
+                
+            config_message.send()
             
             return message(req,
                 "SmartConnect IMEI:  %s successfully edited, new config sent to device" % (device.alias),
                 link="/smartconnect")
                 
         else:
-            print("DEBUG FORM: %s" % form.is_valid())
-            return render_to_response(req,'smartconnect/errors.html', {
-                'errors':       form.errors,
+            return render_to_response(req,'smartconnect/device_edit.html', {
                 'form':         form,
             })
-            #return message(req,
-            #    "SmartConnect IMEI:  form input not valid, config NOT sent to device:  %s " % (form.errors),
-            #    link="/smartconnect")
+            return message(req,
+                "SmartConnect IMEI:  form input not valid, config NOT sent to device:  %s " % (form.errors),
+                link="/smartconnect")
 
     # invoke the correct function...
     # this should be abstracted away

@@ -1,7 +1,5 @@
-from django import forms
 from django.forms import ModelForm
-from models import *
-from reporters.models import *
+from smartconnect.models import *
 
 class SmartConnectDeviceForm(ModelForm):
     class Meta:

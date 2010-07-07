@@ -185,6 +185,8 @@ class App (rapidsms.app.App):
             smart_connect_device.alert_status = report.is_alert
             if ( report.type == "tmp" ):
                 smart_connect_device.current_temp=report.value
+                #also, stop alerting since this is a non alert report
+                smart_connect_device.is_alert=False
             smart_connect_device.save()
             
         else:
@@ -228,10 +230,15 @@ class App (rapidsms.app.App):
             
             #update the SmartConnect device
             smart_connect_device.alert_status = report.is_alert
+            
             if ( report.type == "tmp" ):
                 smart_connect_device.current_temp=report.value
+            
             smart_connect_device.save()
-
+            
+            #if this is an unacknowledged alert, ACK it
+            if ( report.is_acknowledged == False ):
+                message.respond("@ACK ALT!")
 
         else:
             self.debug("NO MATCHES IN ALT STRING")

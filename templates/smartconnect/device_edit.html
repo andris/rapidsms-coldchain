@@ -3,53 +3,49 @@
 {% load smartconnect-tags %}
 {% load pagination-tags %}
 {% load i18n %}
-{% block title %}{% trans "SmartConnect - Delete Device" %}{% endblock %}
+{% block title %}{% trans "Test form" %}{% endblock %}
 
 {% block content %}
+
+<h2 style= "text-align:{% trans 'left;' %}">{% trans "Edit" %} {{ device.full_name }}</h2>
+
 <div class="module">
-
-<h2 style= "text-align:{% trans 'left;' %}">{% trans "Edit" %} {{ smartconnectdevice.full_name }}</h2>
-
-<form method="post" id="fm-device-edit" action="/smartconnect/edit/{{ smartconnectdevice.pk }}">
-<div>
+<div class="scform">
+    <form action="/smartconnect/edit/{{ device.pk }}" method="post">
     <label>{% trans "Device Name" %}</label>
     <div>
-        <input type="text" id="fm-device-edit-first_name" size="30" name="first_name" value="{{ smartconnectdevice.first_name }}" />
-        <label for="fm-device-edit-first_name" class="suffix">{% trans "First" %}<span class="acc"> {% trans "Name" %}</span></label>
-    </div>
-    <div>
-        <input type="text" id="fm-device-edit-last_name" size="30" name="last_name" value="{{ smartconnectdevice.last_name }}" />
-        <label for="fm-device-edit-last_name" class="suffix">{% trans "Last" %}<span class="acc"> {% trans "Name" %}</span></label>
+        {{ form.first_name }}
+        <label class="suffix">{% trans "First Name" %} {{ form.first_name.errors }}</label>
+        <br>
+        {{ form.last_name }}
+        <label class="suffix">{% trans "Last Name" %} {{ form.last_name.errors }}</label>
     </div>
     
     <label>{% trans "Thresholds" %}</label>
     <div>
-        <input type="text" id="fm-device-edit-low_temp" size="5" name="low_temp" value="{{ smartconnectdevice.low_thresh|to_celcius }}" />
-        <label for="fm-device-edit-low_temp" class="suffix">{% trans "Low Temperature" %} (&deg;C)</span></label>        
+        {{ form.low_thresh }}
+        <label class="suffix">{% trans "Low Temperature" %} (&deg;K) {{ form.low_thresh.errors }}</label>
+        <br>
+        {{ form.high_thresh }}     
+        <label class="suffix">{% trans "High Temperature" %} (&deg;K) {{ form.high_thresh.errors }}</label>
     </div>
-    <div>
-        <input type="text" id="fm-device-edit-high_temp" size="5" name="low_temp" value="{{ smartconnectdevice.high_thresh|to_celcius }}" />
-        <label for="fm-device-edit-high_temp" class="suffix">{% trans "High Temperature" %} (&deg;C)</span></label>
-    </div>
-
+    
     <label>{% trans "Reporting Frequency" %}</label>
     <div>
-        <input type="text" id="fm-device-edit-rpt_freq" size="5" name="low_temp" value="{{ smartconnectdevice.report_freq }}" />
-        <label for="fm-device-edit-rpt_freq" class="suffix">{% trans "Standard" %}</span></label>
+        {{ form.report_freq }}     
+        <label class="suffix">{% trans "Standard (minutes)" %} {{ form.report_freq.errors }}</label>
+        <br>
+        {{ form.alert_freq }}
+        <label class="suffix">{% trans "Alert (minutes)" %} {{ form.alert_freq.errors }}</label>
     </div>
-    <div>
-        <input type="text" id="fm-device-edit-alt_freq" size="5" name="low_temp" value="{{ smartconnectdevice.alert_freq }}" />
-        <label for="fm-device-edit-alt_freq" class="suffix">{% trans "Alert" %}</span></label>
+
+    <div class="submit">
+        <input type="submit" name="submit" value="{% trans 'Submit' %}" />
+        <input type="submit" name="cancel" value="{% trans 'Cancel' %}" />
     </div>
+
+    </form>
 </div>
-
-<div class="submit">
-    <input type="submit" name="submit" value="{% trans 'Submit' %}" />           
-    <input type="submit" name="cancel" value="{% trans 'Cancel' %}" />           
-</div>
-
-</form>
-
 </div>
 {% endblock %}
 
