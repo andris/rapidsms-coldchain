@@ -10,4 +10,5 @@ urlpatterns = patterns('',
     url(r'^smartconnect/(?P<pk>\d+)$', views.display_device),
     url(r'^smartconnect/delete/(?P<pk>\d+)$', views.delete_device),
     url(r'^smartconnect/edit/(?P<pk>\d+)$', views.edit_device),
+    url(r'^smartconnect/sendmessage/(?P<pk>\d+)$', views.message_device),
 )

@@ -1,3 +1,4 @@
+from django import forms
 from django.forms import ModelForm
 from smartconnect.models import *
 
@@ -11,3 +12,6 @@ class SmartConnectDeviceForm(ModelForm):
             'high_thresh', 
             'report_freq', 
             'alert_freq')
+
+class MessageForm(forms.Form):
+    text = forms.CharField(required=True, max_length=158)

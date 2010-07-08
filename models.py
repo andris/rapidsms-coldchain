@@ -29,6 +29,9 @@ class SmartConnectClient(Reporter):
     
     #Current temperature (in K)
     current_temp = models.PositiveIntegerField(null=False, default=273)
+    
+    #Last Received Text MSG
+    last_text = models.CharField(null=False, max_length=158)
 	
     def __unicode__(self):
         if self.connection():

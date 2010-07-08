@@ -267,4 +267,18 @@ class App (rapidsms.app.App):
     @kw("(whatever)")
     def receive_version(self, message, contents):
         self.debug("Got MSG with contents %s" % contents)
+        
+        if message.reporter:
+            device = SmartConnectClient.objects.get(alias=message.reporter.alias)
+            device.last_text = contents
+            device.save()
+            self.handled = True
+
+        else:
+            self.debug("RECEIVED MSG FROM UNREGISTERED DEVICE")
+            self.handled = False
+            
+        return self.handled
+            
+        
         self.handled = True

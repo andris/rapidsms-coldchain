@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4
 
+import httplib, urllib, urllib2
+from threading import Thread
+
 from django.http import HttpResponse, HttpResponseNotAllowed, HttpResponseServerError
 from django.template import RequestContext
 from django.views.decorators.http import require_GET, require_POST, require_http_methods
@@ -105,11 +108,9 @@ def edit_device(req, pk):
              
             print("DEBUG config message: %s" % config_string)
             
-            config_message=Message(
-                connection=device.connection(),
-                text=config_string)
-                
-            config_message.send()
+            #Send the config message out to the device via a call to the ajax app
+            thread = Thread(target=_send_message,args=(req, pk, config_string))
+            thread.start()            
             
             return message(req,
                 "SmartConnect IMEI:  %s successfully edited, new config sent to device" % (device.alias),
@@ -119,11 +120,59 @@ def edit_device(req, pk):
             return render_to_response(req,'smartconnect/device_edit.html', {
                 'form':         form,
             })
-            return message(req,
-                "SmartConnect IMEI:  form input not valid, config NOT sent to device:  %s " % (form.errors),
-                link="/smartconnect")
 
     # invoke the correct function...
     # this should be abstracted away
     if   req.method == "GET":  return get(req)
     elif req.method == "POST": return post(req)
+
+def message_device(req, pk):
+    device = get_object_or_404(SmartConnectClient, pk=pk)
+    
+    def get(req):
+        form = MessageForm()
+        
+        return render_to_response(req,'smartconnect/device_message.html', {
+            'form':     form,
+            'device':   device,
+        })
+    
+    def post(req):
+        form = MessageForm(req.POST)
+            
+        
+        if form.is_valid():
+            modified_message="@MSG %s!" % form.cleaned_data['text']
+            print("DEBUG trnamitting message: %s" % modified_message)
+
+            #Send the manual message out to the device via a call to the ajax app
+            thread = Thread(target=_send_message,args=(req, pk, modified_message))
+            thread.start()
+            
+            return message(req,
+                "SmartConnect IMEI:  message sent",
+                link="/smartconnect")
+            
+        else:
+            return render_to_response(req,'smartconnect/device_message.html', {
+                'form':         form,
+                'device':       device,
+            })
+
+    # invoke the correct function...
+    # this should be abstracted away
+    if   req.method == "GET":  return get(req)
+    elif req.method == "POST": return post(req)
+
+
+def _send_message(req, pk, text):
+    # also send the message, by hitting the ajax url of the messaging app
+    data = {"uid":  pk,
+            "text": text
+            }
+    encoded = urllib.urlencode(data)
+    headers = {"Content-type": "application/x-www-form-urlencoded",
+               "Accept": "text/plain"}
+    conn = httplib.HTTPConnection(req.META["HTTP_HOST"])
+    conn.request("POST", "/ajax/messaging/send_message", encoded, headers)
+    response = conn.getresponse()
