@@ -5,8 +5,8 @@
 
 <div class="details">
     <h2>{% trans "Device Details" %}</h2>
-    <table>
-        <tbody>
+    <table class="sctable">
+        <tbody class="details">
             <tr>
                 <td>Device IMEI:</td>
                 <td>{% if smartconnectdevice.alias %}{{ smartconnectdevice.alias }}{% else %}<span class="na">{% trans "n/a" %}</span>{% endif %}</td>
@@ -23,7 +23,7 @@
             </tr>
             <tr>
                 <td>Alert Status:</td>
-                <td>{{ smartconnectdevice.alert_status }}</td>
+                {% if smartconnectdevice.alert_status %}<td class="sc_alert">{% else %}<td class="sc_ok">{% endif %}</td>
                 <td></td>
                 <td>High Temp. Threshold:</td>
                 <td>{{ smartconnectdevice.high_thresh|to_celcius  }}&deg C</td>

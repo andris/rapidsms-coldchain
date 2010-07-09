@@ -1,5 +1,5 @@
 from django.db import models
-from reporters.models import Location, Reporter, PersistantConnection
+from reporters.models import Location, Reporter, PersistantConnection, ReporterGroup
 
 #Representation of a SmartConnect sensor (extends reporter)
 class SmartConnectClient(Reporter):
@@ -32,6 +32,9 @@ class SmartConnectClient(Reporter):
     
     #Last Received Text MSG
     last_text = models.CharField(null=False, max_length=158)
+    
+    #people watching this device
+    watchers = models.ForeignKey(ReporterGroup, null=True)
 	
     def __unicode__(self):
         if self.connection():

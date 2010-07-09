@@ -1,4 +1,5 @@
 {% extends base_template %}
+{% load i18n %}
 
 {% block page_stylesheets %}
 <style>
@@ -10,8 +11,60 @@
     .module div.toolbar .edit  { background-image: url("/static/smartconnect/icons/pencil.png");  }
     .module div.toolbar .sendmessage  { background-image: url("/static/smartconnect/icons/phone.png");  }
     
+    .module table.sctable td 
+    {
+        background-repeat:no-repeat;
+        background-position:center;
+    }
+    .module table.sctable tbody.details td { background-position:5px;}
+    .module .sc_ok { background-image: url("/static/smartconnect/icons/accept.png");  }
+    .module .sc_alert { background-image: url("/static/smartconnect/icons/exclamation.png");  }
+    .module .sc_warning { background-image: url("/static/smartconnect/icons/error.png");  }
+    
     .scform ul.errorlist { list-style-type: none; color:red; margin: 0; padding: 0;}
 
 </style>
 {% endblock %}
 
+{% block page_tabs %}
+<ul id="page-tabs">
+    <li class="page"><a href="/smartconnect">{% trans "SmartConnect" %}</a></li>
+</ul>
+{% endblock %}
+
+{% block auth %}
+    <div id="auth">
+    {% if user.is_authenticated %}
+    <p><a href="/smartconnect/logout">{% trans "Log out" %} {{ user.username }}</a></p>
+    {% else %}
+    <p><a href="/smartconnect/login">{% trans "Log in" %}</a></p>
+    {% endif %}
+    </div>
+{% endblock %}
+
+{% block footer %}
+{% if USE_I18N %}
+    <form action="/i18n/setlang/" method="post" style="float:right">
+    <select name="language">
+    {% for lang in LANGUAGES %}
+    <option value="{{ lang.0 }}" 
+    {% ifequal LANGUAGE_CODE lang.0 %}selected{% endifequal %}>
+    {{ lang.1 }}
+    </option>
+    {% endfor %}
+    </select>
+    <input type="submit" class="small" value="Submit"/>
+    </form>
+    {% endif %}
+
+    <div id="footer">
+        <p class="rights">
+            {% trans "RapidSMS is Copyright" %} &copy; 2009-2010
+            <a href="http://unicef.org">{% trans "UNICEF" %}</a>{% trans " et al." %}<br />
+            <a href="http://github.com/rapidsms/rapidsms">{% trans "RapidSMS" %}</a> {% trans "is available under" %}
+            <a href="http://github.com/rapidsms/rapidsms/raw/master/LICENSE">{% trans "the BSD license" %}</a>.<br />
+            {% trans "SmartConnect is Copyright" %} &copy; 2010
+            <a href="http://www.inveneo.org">{% trans "Inveneo" %}</a>.
+        </p>
+    </div>
+    {% endblock %}

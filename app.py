@@ -239,6 +239,16 @@ class App (rapidsms.app.App):
             #if this is an unacknowledged alert, ACK it
             if ( report.is_acknowledged == False ):
                 message.respond("@ACK ALT!")
+                
+            #TEMPORARY!  DELETE THIS
+            #listeners = ReporterGroup.objects.filter(title='listeners')
+            #smart_connect_device.watchers = listeners[0]
+                
+            #If this device has watchers, ping them
+            #watchers = smart_connect_device.watchers
+            #if(watchers.members() > 0):
+            #    for watcher in watchers:
+            #        self.debug("Send message to %s" % watcher)
 
         else:
             self.debug("NO MATCHES IN ALT STRING")

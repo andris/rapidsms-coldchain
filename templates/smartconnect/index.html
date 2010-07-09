@@ -14,7 +14,7 @@
 {% block content %}
 <div class="module">
     <h2>{% trans "Registered SmartConnect Devices" %}</h2>
-    <table>
+    <table class="sctable">
         <thead>
             <tr>
                 <th style= "text-align:{% trans 'left;' %} scope="col">{% trans "Name" %}</th>
@@ -29,8 +29,8 @@
             <tr>
                 <td><a href="/smartconnect/{{ smartconnectdevice.pk }}"{% if smartconnectdevice.full_name %}>{{ smartconnectdevice.full_name }}{% else %} class="unknown">{% trans "Unknown" %}{% endif %}</a></td>
                 <td>{% if smartconnectdevice.alias %}{{ smartconnectdevice.alias }}{% else %}<span class="na">{% trans "n/a" %}</span>{% endif %}</td>
-                <td>{{ smartconnectdevice.alert_status }}</td>
-                <td>{{ smartconnectdevice.is_configured }}</td>
+                {% if smartconnectdevice.alert_status %}<td class="sc_alert">{% else %}<td class="sc_ok">{% endif %}</td>
+                {% if smartconnectdevice.is_configured %}<td class="sc_ok">{% else %}<td class="sc_warning">{% endif %}</td>
                 <td>{{ smartconnectdevice.current_temp|to_celcius }}&deg C</td>
                 <td>{{ smartconnectdevice.last_seen|last_seen }}</td>
             </tr>{% endfor %}{% else %}
