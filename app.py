@@ -1,6 +1,9 @@
 import rapidsms
 from rapidsms.parsers.keyworder import *
 from rapidsms.utils import *
+from reporters.models import *
+from rapidsms.message import Message
+from rapidsms.connection import Connection
 
 import re
 from models import *
@@ -228,30 +231,42 @@ class App (rapidsms.app.App):
             report.save()
             self.debug("ALT received--" + str(report))
             
-            #update the SmartConnect device
+            #update the SmartConnect device so it knows it's alerting
             smart_connect_device.alert_status = report.is_alert
-            
-            if ( report.type == "tmp" ):
-                smart_connect_device.current_temp=report.value
-            
             smart_connect_device.save()
             
             #if this is an unacknowledged alert, ACK it
             if ( report.is_acknowledged == False ):
                 message.respond("@ACK ALT!")
+           
+            #Start Temperature specific processing here    
+            if ( report.type == "tmp" ):
+                smart_connect_device.current_temp=report.value
+                smart_connect_device.save()
                 
-            #TEMPORARY!  DELETE THIS
-            #listeners = ReporterGroup.objects.filter(title='listeners')
-            #smart_connect_device.watchers = listeners[0]
+                #if this device has watchers, message them
+                #on last known connection
+                if( smart_connect_device.watchers != None and smart_connect_device.watchers.members() > 0 ):
+                    watchers = smart_connect_device.watchers.reporters.all()
                 
-            #If this device has watchers, ping them
-            #watchers = smart_connect_device.watchers
-            #if(watchers.members() > 0):
-            #    for watcher in watchers:
-            #        self.debug("Send message to %s" % watcher)
+                    #Sloppy, we should convert from K to C in a function
+                    alert_text = 'SmartConnect ALERT from device %(imei)s.  Current temperature is %(temp)d%(degree)s C' % {
+                        'imei': smart_connect_device.alias,
+                        'temp': report.value-273,
+                        #'degree': u"\u00B0"
+                        'degree': " deg."
+                    }
+                
+                    for watcher in watchers:
+                        self.debug("Send message %(my_message)s to %(my_watcher)s" % {
+                            'my_message' : alert_text,
+                            'my_watcher': watcher
+                        })
 
+                        self._send_message(watcher, alert_text)
+            
         else:
-            self.debug("NO MATCHES IN ALT STRING")
+            self.debug("Incorrectly formatted ALT string received")
             
         self.handled = True
         
@@ -292,3 +307,28 @@ class App (rapidsms.app.App):
             
         
         self.handled = True
+
+    #This is necessary to initiate messages ourself without calling through the webui
+    def _send_message(self, reporter, message_text):
+        reporter_connection = reporter.connection()
+        if reporter_connection:
+            #Backends are stored in the db as PersistantBackends
+            #however, we need the _actual_ backend this represents
+            #from our current router.
+            db_backend = reporter_connection.backend
+            real_backend = self.router.get_backend(db_backend.slug)
+            if real_backend:
+                connection = Connection(real_backend, reporter_connection.identity)
+                message = Message(connection, message_text)
+                self.router.outgoing(message)
+                return
+                
+            else:
+                error = "Can't find backend %s.  Messages will not be sent" % connection.backend.slug
+                self.error(error)
+                return error
+                
+        else:
+            error = "Can't find connection %s.  Messages will not be sent" % reporter_connection
+            self.error(error)
+            return error        

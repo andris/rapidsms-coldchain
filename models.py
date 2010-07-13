@@ -34,7 +34,7 @@ class SmartConnectClient(Reporter):
     last_text = models.CharField(null=False, max_length=158)
     
     #people watching this device
-    watchers = models.ForeignKey(ReporterGroup, null=True)
+    watchers = models.ForeignKey(ReporterGroup, null=True, blank=True)
 	
     def __unicode__(self):
         if self.connection():

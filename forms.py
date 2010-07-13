@@ -11,7 +11,8 @@ class SmartConnectDeviceForm(ModelForm):
             'low_thresh', 
             'high_thresh', 
             'report_freq', 
-            'alert_freq')
+            'alert_freq',
+            'watchers')
 
 class MessageForm(forms.Form):
     text = forms.CharField(required=True, max_length=158)

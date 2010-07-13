@@ -38,6 +38,12 @@
         {{ form.alert_freq }}
         <label class="suffix">{% trans "Alert (minutes)" %} {{ form.alert_freq.errors }}</label>
     </div>
+    
+    <label>{% trans "Watchers" %}</label>
+    <div>
+        {{ form.watchers }}
+        <label class="suffix">{% trans "Group to be notified of alerts" %} {{ form.watchers.errors }} </label>
+    </div>
 
     <div class="submit">
         <input type="submit" name="submit" value="{% trans 'Submit' %}" />
