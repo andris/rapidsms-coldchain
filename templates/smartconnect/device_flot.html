@@ -1,0 +1,104 @@
+{% extends "smartconnect/smartconnect_base.html" %}
+{% load reporters-tags %}
+{% load smartconnect-tags %}
+{% load pagination-tags %}
+{% load i18n %}
+{% block title %}{% trans "SmartConnect Device View" %}{% endblock %}
+
+{% block javascripts %}
+<script type="text/javascript" src="/static/reporters/javascripts/clear-form-elements.js"></script>
+<script type="text/javascript" src="/static/reporters/javascripts/cloneable.js"></script>
+<script type="text/javascript" src="/static/smartconnect/flot/jquery.js"></script>
+<script type="text/javascript" src="/static/smartconnect/flot/jquery.flot.js"></script>
+<script type="text/javascript" src="/static/smartconnect/flot/jquery.flot.selection.js"></script>
+<script type="text/javascript" src="/static/smartconnect/flot/jquery.flot.threshold.js"></script>
+<!--[if IE]><script type="text/javascript" src="/static/webapp/javascripts/excanvas.pack.js"></script>
+<![endif]-->
+{% endblock %}
+
+{% block content %}
+<div class="module">
+<div class="top">
+    {% device_details smartconnectdevice %}
+</div>
+
+<div class="toolbar">
+            <a href="/smartconnect/sendmessage/{{ smartconnectdevice.pk }}" class="sendmessage">{% trans "Send Message" %}</a>
+            <a href="/smartconnect/delete/{{ smartconnectdevice.pk }}" class="delete">{% trans "Delete" %}</a>
+            <a href="/smartconnect/edit/{{ smartconnectdevice.pk }}" class="edit">{% trans "Edit" %}</a>
+</div>
+
+<div class="bottom">    
+    <h2>{% trans "Temperature History" %}</h2>
+
+    <div id="graph" style="width:600px;height:300px;"></div>
+    <div id="overview_graph" style="margin-left:50px;margin-top:20px;width:400px;height:50px"></div>
+    
+    <script id="source" language="javascript" type="text/javascript">
+    $(function () {
+        var d = [];
+        
+        {% for report in reports %}
+            d.push([ {{ report.time|to_js_timestamp }}, {{ report.value|to_celcius }}]);
+        {% endfor %}
+        
+        //If we have no data, don't plot
+        if (d.length==0)
+        {
+        }
+        
+        //Otherwise, go ahead and draw
+        else
+        {
+        
+            // setup background shading for high and low thresholds
+            var markings = [
+                { color: '#CAD1E8', yaxis: { to: {{ smartconnectdevice.low_thresh|to_celcius}} } },
+                { color: '#E8CACD', yaxis: { from: {{ smartconnectdevice.high_thresh|to_celcius}} } },
+            ];        
+                
+            //Set our graph options here
+            var options = {
+                series: {
+                },
+                points: { show: true },
+                lines: { show: true, steps: true},
+                xaxis: { mode: "time" },
+                selection: { mode: "x" },
+                grid: { markings: markings },
+            };
+        
+            var plot = $.plot($("#graph"), [d], options)
+        
+            var overview = $.plot($("#overview_graph"), [d], {
+                series: {
+                    lines: { show: true, steps:true, lineWidth: 1 },
+                    shadowSize: 0
+                },
+                xaxis: { ticks: [], mode: "time" },
+                yaxis: { ticks: [], min: 0, autoscaleMargin: 0.1 },
+                selection: { mode: "x" }
+            });
+    
+            $("#graph").bind("plotselected", function (event, ranges) {
+                // do the zooming
+                plot = $.plot($("#graph"), [d],
+                            $.extend(true, {}, options, {
+                                xaxis: { min: ranges.xaxis.from, max: ranges.xaxis.to }
+                            }));
+ 
+                // don't fire event on the overview to prevent eternal loop
+                overview.setSelection(ranges, true);
+            });
+    
+            $("#overview_graph").bind("plotselected", function (event, ranges) {
+                plot.setSelection(ranges);
+            });
+        }
+    });    
+    </script>
+    
+</div>
+</div>
+{% endblock %}
+
