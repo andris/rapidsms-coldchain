@@ -1,0 +1,43 @@
+{% extends "smartconnect/watchers.html" %}
+{% load i18n %}
+{% block title %}{% if group %}{% trans "Edit" %} {{ group }}{% else %}{% trans "Add a Watcher Group" %}{% endif %}{% endblock %}
+
+{% block left %}
+<div class="module">
+	<h2>{% if group %}{% trans "Edit" %} {{ group }}{% else %}{% trans "Add a Watcher Group" %}{% endif %}</h2>
+	
+	<form method="post" id="fm-grp-add" action="/smartconnect/watchers/groups/{% if group %}{{ group.pk }}{% else %}add{% endif %}">
+		<div>
+			<label for="fm-grp-add-title">{% trans "Title" %}</label>
+			<input type="text" class="required" id="fm-grp-add-title" name="title"{% if group %} value="{{ group.title }}"{% endif %} />
+		</div>
+		<div>
+			<label for="fm-grp-add-desc">{% trans "Description" %}</label>
+			<textarea id="fm-grp-add-desc" name="description" rows="6" cols="40">{% if group %}{{ group.description }}{% endif %}</textarea>
+			<p class="help">
+                {% trans "If provided, the text is displayed to users attempting to send a bulk message to this group, to ensure they understand what it is." %}
+			</p>
+		</div>
+		<div id="fm-grp-add-groups">
+			<label>{% trans "Parent Group" %}</label>
+			<select name="parent_id" size="6">
+				<option value=""{% if not group.parent %} selected="selected"{% endif %} class="na">{% trans "None" %}</option>{% for group in all_groups %}
+				<option value="{{ group.pk }}" class="depth-{{ group.depth }}"{% if group.selected %} selected="selected"{% endif %}>{{ group.title }}</option>{% endfor %}
+			</select>
+			<p class="help">
+				{% trans "The other Group that" %} <em>{% if group %}{{ group.title }}{% else %}{% trans "this group" %}{% endif %}</em>{% trans " is contained by." %}
+			</p>
+		</div>
+		<div class="submit">
+			<input type="submit" value="{% if group %}{% trans 'Save Changes' %}{% else %}Add Group{% endif %}" />{% if group %}
+			<input type="submit" name="delete" value="{% trans 'Delete' %} {{ group }}" />{% endif %}
+		</div>
+	</form>
+</div>
+
+<script type="text/javascript">
+	$(function() {
+		$("#fm-grp-add").rs_validate();
+	});
+</script>
+{% endblock %}

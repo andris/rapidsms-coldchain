@@ -253,7 +253,6 @@ class App (rapidsms.app.App):
                     alert_text = 'SmartConnect ALERT from device %(imei)s.  Current temperature is %(temp)d%(degree)s C' % {
                         'imei': smart_connect_device.alias,
                         'temp': report.value-273,
-                        #'degree': u"\u00B0"
                         'degree': " deg."
                     }
                 

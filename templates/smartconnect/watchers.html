@@ -1,0 +1,88 @@
+{% extends "smartconnect/smartconnect-split-2.html" %}
+{% load reporters-tags %}
+{% load pagination-tags %}
+{% load i18n %}
+{% block title %}{% trans "Reporters and Groups" %}{% endblock %}
+
+{% block javascripts %}
+<script type="text/javascript" src="/static/reporters/javascripts/clear-form-elements.js"></script>
+<script type="text/javascript" src="/static/reporters/javascripts/cloneable.js"></script>
+{% endblock %}
+
+{% block left %}
+<div class="module">
+	<h2>{% trans "All Watchers" %}</h2>
+	<table>
+		<thead>
+			<tr>
+				<th style= "text-align:{% trans 'left;' %} scope="col">{% trans "Name" %}</th>
+				<th style= "text-align:{% trans 'left;' %} scope="col">{% trans "Alias" %}</th>
+				<th style= "text-align:{% trans 'left;' %} scope="col">{% trans "Last Seen" %}</th>
+			</tr>
+		</thead>
+		<tbody>{% if watchers.object_list %}{% for watcher in watchers.object_list %}
+			<tr>
+				<td><a href="/smartconnect/watchers/{{ watcher.pk }}"{% if watcher.full_name %}>{{ watcher.full_name }}{% else %} class="unknown">{% trans "Unknown" %}{% endif %}</a></td>
+				<td>{% if watcher.alias %}{{ watcher.alias }}{% else %}<span class="na">{% trans "n/a" %}</span>{% endif %}</td>
+				<td>{{ watcher.last_seen|last_seen }}</td>
+			</tr>{% endfor %}{% else %}
+			<tr class="no-data">
+				<td colspan="3">
+					{% trans "No watchers Yet." %}
+					<a href="/smartconnect/watchers/add" class="add">
+						{% trans "Add a Watcher" %}
+					</a>
+				</td>
+			</tr>{% endif %}
+		</tbody>
+		<tfoot>
+			<tr>
+				<td colspan="3">
+					{% paginator watchers %}
+				</td>
+			</tr>
+		</tfoot>
+	</table>
+	<div class="toolbar">
+		<a href="/smartconnect/watchers/add" class="add">{% trans "Add a Watcher" %}</a>
+	</div>
+</div>
+{% endblock %}
+
+{% block right %}
+<div class="module">
+	<h2>{% trans "All Groups" %}</h2>
+	<table>
+		<thead>
+			<tr>
+				<th style= "text-align:{% trans 'left;' %} scope="col">{% trans "Title" %}</th>
+				<th style= "text-align:{% trans 'left;' %} scope="col">{% trans "Members" %}</th>
+			</tr>
+		</thead>
+		<tbody>{% if groups.object_list %}{% for group in groups.object_list %}
+			<tr class="depth-{{ group.depth }}">
+				<td class="indent"><span><a href="/smartconnect/watchers/groups/{{ group.pk }}"{% if group.title %}>{{ group.title }}{% else %} class="unknown">{% trans "Unknown" %}{% endif %}</a></span></td>
+				<td>{{ group.members }}</td>
+			</tr>{% endfor %}{% else %}
+			<tr class="no-data">
+				<td colspan="3">
+					{% trans "No Groups Yet." %}
+					<a href="/smartconnect/watchers/groups/add" class="add">
+						{% trans "Add a Group" %}
+					</a>
+				</td>
+			</tr>{% endif %}
+		</tbody>
+		<tfoot>
+			<tr>
+				<td colspan="3">
+					{% paginator groups %}
+				</td>
+			</tr>
+		</tfoot>
+	</table>
+	<div class="toolbar">
+		<a href="/smartconnect/watchers/groups/add" class="add">{% trans "Add a Group" %}</a>
+	</div>
+</div>
+{% endblock %}

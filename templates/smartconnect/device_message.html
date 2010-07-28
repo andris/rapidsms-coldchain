@@ -1,0 +1,43 @@
+{% extends "smartconnect/smartconnect_base.html" %}
+{% load reporters-tags %}
+{% load smartconnect-tags %}
+{% load pagination-tags %}
+{% load i18n %}
+{% block title %}{% trans "SmartConnect Send Message" %}{% endblock %}
+
+{% block content %}
+<div class="module">
+<div class="top">
+    {% device_details device %}
+</div>
+
+<div class="toolbar">
+            <a href="/smartconnect/sendmessage/{{ device.pk }}" class="sendmessage">{% trans "Send Message" %}</a>
+            <a href="/smartconnect/delete/{{ device.pk }}" class="delete">{% trans "Delete" %}</a>
+            <a href="/smartconnect/edit/{{ device.pk }}" class="edit">{% trans "Edit" %}</a>
+</div>
+
+<div class="bottom">
+<h2>{% trans "Send Message" %}</h2>
+
+<div class="scform">
+    <form action="/smartconnect/sendmessage/{{ device.pk }}" method="post">
+    <div>
+        <label>{% trans "Enter a message to send to the device" %}</label>
+        {{ form.text }}
+        <label class="suffix">{% trans "Message Text (max 158 Characters)" %} {{ form.text.errors }}</label>
+    </div>
+    <div class="submit">
+        <input type="submit" name="submit" value="{% trans 'Send Message' %}" />
+        <input type="submit" name="cancel" value="{% trans 'Cancel' %}" />
+    </div>
+    </form>
+</div>
+
+
+</div>
+
+
+</div>
+{% endblock %}
+

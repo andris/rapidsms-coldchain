@@ -1,12 +1,13 @@
-{% extends base_template %}
+{% extends request.base_template %}
 {% load i18n %}
+{% block title %}{% trans "Goodbye" %}{% endblock %}
 
 {% block page_stylesheets %}
 <style>
     #branding h1 {
             background: url("/static/smartconnect/images/inveneo-path-rapidsms.png") no-repeat 100% 50%;
     }
-    
+
     #branding h1 b {
         height: 65px;
         display: block;
@@ -14,30 +15,8 @@
         background: url("/static/smartconnect/images/smartconnect.png") no-repeat 0 50%;
     }
 
-    .module div.toolbar .delete  { background-image: url("/static/smartconnect/icons/delete.png");  }
-    .module div.toolbar .edit  { background-image: url("/static/smartconnect/icons/pencil.png");  }
-    .module div.toolbar .sendmessage  { background-image: url("/static/smartconnect/icons/phone.png");  }
-    
-    .module table.sctable td 
-    {
-        background-repeat:no-repeat;
-        background-position:center;
-    }
-    .module table.sctable tbody.details td { background-position:5px;}
-    .module .sc_ok { background-image: url("/static/smartconnect/icons/accept.png");  }
-    .module .sc_alert { background-image: url("/static/smartconnect/icons/exclamation.png");  }
-    .module .sc_warning { background-image: url("/static/smartconnect/icons/error.png");  }
-    
     .scform ul.errorlist { list-style-type: none; color:red; margin: 0; padding: 0;}
-
 </style>
-{% endblock %}
-
-{% block page_tabs %}
-<ul id="page-tabs">
-    <li class="page"><a href="/smartconnect/watchers">{% trans "Watchers" %}</a></li>
-    <li class="page"><a href="/smartconnect">{% trans "SmartConnect Devices" %}</a></li>
-</ul>
 {% endblock %}
 
 {% block auth %}
@@ -48,6 +27,16 @@
     <p><a href="/smartconnect/login">{% trans "Log in" %}</a></p>
     {% endif %}
     </div>
+{% endblock %}
+
+{% block content %}
+
+<h1>{% trans "Thanks for using SmartConnect" %}</h1>
+
+<p>{% trans "Please come again." %}</p>
+
+<a href="/smartconnect/login">{% trans "Log in again" %}</a>
+
 {% endblock %}
 
 {% block footer %}

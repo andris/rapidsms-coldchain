@@ -1,0 +1,93 @@
+{% extends "smartconnect/watchers.html" %}
+{% load i18n %}
+{% block title %}{% if watcher %}{% trans "Edit" %}{{ watcher }}{% else %}{% trans "Add a Watcher" %}{% endif %}{% endblock %}
+
+{% block right %}
+<div class="module">
+	<h2 style= "text-align:{% trans 'left;' %}">{% if watcher %}{% trans "Edit" %} {{ watcher }}{% else %}{% trans "Add a watcher" %}{% endif %}</h2>
+	
+	<form method="post" id="fm-rep-add" action="/smartconnect/watchers/{% if watcher %}{{ watcher.pk }}{% else %}add{% endif %}">
+		<div>
+			<label for="fm-rep-add-alias">{% trans "Alias" %}</label>
+			<input type="text" class="required" id="fm-rep-add-alias" name="alias"{% if watcher %} value="{{ watcher.alias }}"{% endif %} />
+			<p class="help">{% trans "Must be alphanumeric, up to 20 characters." %}</p>
+		</div>
+		<div>
+			<label>{% trans "Name" %}</label>
+			<div>
+				<input type="text" id="fm-rep-add-first_name" name="first_name"{% if watcher %} value="{{ watcher.first_name }}"{% endif %} />
+				<label for="fm-rep-add-first_name" class="suffix">{% trans "First" %}<span class="acc"> {% trans "Name" %}</span></label>
+			</div>
+			<div>
+				<input type="text" id="fm-rep-add-last_name" name="last_name"{% if watcher %} value="{{ watcher.last_name }}"{% endif %} />
+				<label for="fm-rep-add-last_name" class="suffix">{% trans "Last" %}<span class="acc"> {% trans "Name" %}</span></label>
+			</div>
+		</div>{% if all_backends %}
+		
+		<div id="fm-rep-add-connections">
+			<label>{% trans "Primary Connection" %}</label>{% if connections %}{% for connection in connections %}
+			<div>
+				<input type="hidden" name="conn-id" value="{{ connection.pk }}" />
+				<select name="conn-backend">
+					<option></option>{% for backend in all_backends %}
+					<option value="{{ backend.pk }}"{% ifequal backend connection.backend %} selected="selected"{% endifequal %}>{{ backend.title }}</option>{% endfor %}
+				</select>
+				<input type="text" name="conn-identity" value="{{ connection.identity }}" />
+			</div>{% endfor %}{% else %}
+			<div>
+				<select name="conn-backend">
+					<option selected="selected"></option>{% for backend in all_backends %}
+					<option value="{{ backend.pk }}"{% if backend.selected %} selected="selected"{% endif %}>{{ backend.title }}</option>{% endfor %}
+				</select>
+				<input type="text" name="conn-identity" />
+			</div>{% endif %}
+		</div>{% endif %}
+		
+		<div id="fm-rep-add-groups">
+			<label>{% trans "Primary Group" %}</label>{% if all_groups %}{% if groups %}{% for group in groups %}
+			<div>
+				<select name="group">
+					<option></option>{% for my_group in all_groups %}
+					<option value="{{ my_group.pk }}" class="depth-{{ my_group.depth }}"{% ifequal my_group group %} selected="selected"{% endifequal %}>{{ my_group.title }}</option>{% endfor %}
+				</select>
+			</div>{% endfor %}{% else %}
+			<div>
+				<select name="group">
+					<option></option>{% for my_group in all_groups %}
+					<option value="{{ my_group.pk }}" class="depth-{{ my_group.depth }}">{{ my_group.title }}</option>{% endfor %}
+				</select>
+			</div>{% endif %}{% else %}
+			<div class="no-data">
+				{% trans "No Groups Yet." %}
+				<a href="/smartconnect/watchers/groups/add" class="add">
+					{% trans "Add a Group" %}
+				</a>
+			</div>{% endif %}
+		</div>
+		
+		<div class="submit">
+			<input type="submit" value="{% if watcher %}{% trans 'Save Changes' %}{% else %}Add Watcher{% endif %}" />{% if watcher %}
+			<input type="submit" name="delete" value="{% trans 'Delete' %} {{ watcher }}" />{% endif %}
+		</div>
+	</form>
+</div>
+
+<script type="text/javascript">
+	$(function() {
+		
+		/* make the connection(s) div (above) clonable, so
+		 * more than one connection can be added at once */
+		var id ="#fm-rep-add-connections";
+		$(id + " > div").cloneable("connection", true);
+		$(id + " > label").text("Connection(s)");{% if all_groups %}
+		
+		/* groups are also clonable */
+		var id ="#fm-rep-add-groups";
+		$(id + " > div").cloneable("groups", true);
+		$(id + " > label").text("Group(s)");{% endif %}
+		
+		/* validate the form on submit */
+		$("#fm-rep-add").rs_validate();
+	});
+</script>
+{% endblock %}
