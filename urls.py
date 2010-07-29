@@ -18,6 +18,5 @@ urlpatterns = patterns('',
     url(r'^smartconnect/watchers/(?P<pk>\d+)$', views.edit_watcher, name="view-watcher"),
     url(r'^smartconnect/watchers/groups/add$',         views.add_group),
     url(r'^smartconnect/watchers/groups/(?P<pk>\d+)$', views.edit_group),
-    
-
+    url(r'^smartconnect/preferences$',         views.edit_preferences),
 )

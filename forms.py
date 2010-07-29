@@ -14,5 +14,15 @@ class SmartConnectDeviceForm(ModelForm):
             'alert_freq',
             'watchers')
 
+class SmartConnectPreferencesForm(ModelForm):
+    class Meta:
+        model = SmartConnectPreferences
+        fields = (
+            'default_low_thresh',
+            'default_high_thresh',
+            'default_report_freq',
+            'default_alert_freq',
+            'default_watcher_group')
+
 class MessageForm(forms.Form):
     text = forms.CharField(required=True, max_length=158)

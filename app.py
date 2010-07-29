@@ -7,6 +7,7 @@ from rapidsms.connection import Connection
 
 import re
 from models import *
+from views import get_preferences
 from datetime import datetime
 import os
 
@@ -122,6 +123,9 @@ class App (rapidsms.app.App):
             #We've never seen this IMEI, register the
             #new device    
             else:
+                #go get our global prefs
+                prefs = get_preferences()
+            
                 reporter = SmartConnectClient(
                     first_name="SmartConnect",
                     last_name=("IMEI:" + str(report_imei)),
@@ -132,7 +136,8 @@ class App (rapidsms.app.App):
                     report_freq=report_rpt_freq,
                     alert_freq=report_alt_freq,
                     timeout=report_timeout,
-                    fw_version=report_fw)
+                    fw_version=report_fw,
+                    watchers=prefs.default_watcher_group)
                     
                 reporter.save()
                 
@@ -142,13 +147,26 @@ class App (rapidsms.app.App):
                 message.persistant_connection.save()
                 
                 self.debug("Successfully registered new SmartConnect Device")
+                
+                #If the device reported that it has never been configured
+                #transmit the default config back to it so it knows its 
+                #programmed server number is good
+                if( reporter.is_configured != True ):
+                    config_string='@CFG SYS,1,%(low)d,%(high)d,%(rpt_freq)d,%(alt_freq)d,0!' % {
+                        'low': prefs.default_low_thresh,
+                        'high': prefs.default_high_thresh,
+                        'rpt_freq': prefs.default_report_freq,
+                        'alt_freq': prefs.default_alert_freq
+                    }
+                
+                    message.respond(config_string)
 
         else:
-            self.debug("NO MATCHES IN CFG STRING")
+            self.debug("Received Garbled CFG string")
 
         self.handled = True
 
-    #Really need to merge processing of ALTs and RPTs
+    #TODO:  need to merge processing of ALTs and RPTs
     #logic is almost exactly the same
     kw.prefix = "RPT"
     @kw("(whatever)")

@@ -112,16 +112,23 @@ def edit_device(req, pk):
                     'rpt_freq': device.report_freq,
                     'alt_freq': device.alert_freq
                 }
-             
+                
+                #Set the device as unconfigured in our system 
+                #so when we see the configured flag go green we know
+                #it received the config from us
+                device.is_configured=False
+                device.save()
             
                 #Send the config message out to the device via a call to the ajax app
                 thread = Thread(target=_send_message,args=(req, pk, config_string))
                 thread.start()            
-            
+                
+                #Tell the user all went well
                 return message(req,
                     "SmartConnect IMEI:  %s successfully edited, new config sent to device" % (device.alias),
                     link="/smartconnect")
                 
+            #oops, user has errors in form input.  Ask them to correct and resubmit.
             else:
                 return render_to_response(req,'smartconnect/device_edit.html', {
                     'form':         form,
@@ -527,3 +534,68 @@ def edit_group(req, pk):
             return message(req,
                 "Group %d saved" % (grp.pk),
                 link="/smartconnect/watchers")
+
+
+
+#Begin preference editing code.  Here we let the
+#user set global prefs like default device configuration
+
+def get_preferences():
+    #Note that there are some hardcoded defaults here, just
+    #until the user manually sets their defaults
+    prefs, created = SmartConnectPreferences.objects.get_or_create(
+        name='GlobalPrefs', 
+        defaults={
+            'name': 'GlobalPrefs',
+            'default_low_thresh': 300,
+            'default_high_thresh': 330,
+            'default_alert_freq': 5,
+            'default_report_freq': 30,
+        })
+    
+    return prefs
+
+
+@login_required
+def edit_preferences(req):
+
+    prefs = get_preferences()
+
+    def get(req):
+        form = SmartConnectPreferencesForm(instance=prefs)
+  
+        return render_to_response(req,'smartconnect/preferences.html', {
+            'form':     form,
+            "prefs":    prefs,
+        })
+        
+    def post(req):
+        form = SmartConnectPreferencesForm(req.POST, instance=prefs)
+        
+        #Make sure they clicked submit
+        if req.POST.get("submit", ""):
+            if form.is_valid():
+                form.save()
+                
+                #TODO: might want to offer an option to blast
+                #the config to all devices here later
+                print("PONG")
+                
+                return message(req,
+                    "SmartConnect:  Preferences successfully edited",
+                    link="/smartconnect")
+            
+            #oops, they must have errors in form input    
+            else:
+                return render_to_response(req,'smartconnect/preferences.html', {
+                    'form':         form,
+                })
+        
+        #Must have clicked cancel.  Back to index
+        else:        
+            return index(req)
+        
+    # invoke the correct function...
+    # this should be abstracted away
+    if   req.method == "GET":  return get(req)
+    elif req.method == "POST": return post(req)

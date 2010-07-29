@@ -1,0 +1,50 @@
+{% extends "smartconnect/smartconnect_base.html" %}
+{% load reporters-tags %}
+{% load smartconnect-tags %}
+{% load pagination-tags %}
+{% load i18n %}
+{% block title %}{% trans "Edit Preferences" %}{% endblock %}
+
+{% block content %}
+
+<h2 style= "text-align:{% trans 'left;' %}">{% trans "Edit SmartConnect Preferences" %}</h2>
+<br>
+The values set here will be used to configure any new, unknown SmartConnect devices.  Note that changing these defaults does <b>not</b> recofigure all known SmartConnect devices.
+
+
+<div class="module">
+<div class="scform">
+    <form action="/smartconnect/preferences" method="post">
+    <label>{% trans "Thresholds" %}</label>
+    <div>
+        {{ form.default_low_thresh }}
+        <label class="suffix">{% trans "Low Temperature" %} (&deg;K) {{ form.default_low_thresh.errors }}</label>
+        <br>
+        {{ form.default_high_thresh }}     
+        <label class="suffix">{% trans "High Temperature" %} (&deg;K) {{ form.default_high_thresh.errors }}</label>
+    </div>
+    
+    <label>{% trans "Reporting Frequency" %}</label>
+    <div>
+        {{ form.default_report_freq }}     
+        <label class="suffix">{% trans "Standard (minutes)" %} {{ form.default_report_freq.errors }}</label>
+        <br>
+        {{ form.default_alert_freq }}
+        <label class="suffix">{% trans "Alert (minutes)" %} {{ form.default_alert_freq.errors }}</label>
+    </div>
+    
+    <label>{% trans "Watchers" %}</label>
+    <div>
+        {{ form.default_watcher_group }}
+        <label class="suffix">{% trans "Group to be notified of alerts" %} {{ form.default_watcher_group.errors }} </label>
+    </div>
+
+    <div class="submit">
+        <input type="submit" name="submit" value="{% trans 'Submit' %}" />
+        <input type="submit" name="cancel" value="{% trans 'Cancel' %}" />
+    </div>
+
+    </form>
+</div>
+</div>
+{% endblock %}

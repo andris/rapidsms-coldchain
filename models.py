@@ -1,6 +1,26 @@
 from django.db import models
 from reporters.models import Location, Reporter, PersistantConnection, ReporterGroup
 
+#Object to store global SmartConnect preferences
+class SmartConnectPreferences(models.Model):
+    #Name so we can find it again
+    name = models.CharField(null=False, max_length=20)
+    
+    #Default low temperature threshold
+    default_low_thresh = models.PositiveIntegerField(null=False, default=0)
+
+    #Default high temperature threshold
+    default_high_thresh = models.PositiveIntegerField(null=False, default=0)
+
+    #Default report frequency
+    default_report_freq = models.PositiveIntegerField(null=False, default=0)
+
+    #Default alert frequency
+    default_alert_freq = models.PositiveIntegerField(null=False, default=0)
+    
+    #Default watcher group?
+    default_watcher_group = models.ForeignKey(ReporterGroup, null=True, blank=True)
+
 #Representation of a SmartConnect sensor (extends reporter)
 class SmartConnectClient(Reporter):
     #The sensor reports if it has ever been configured by us
