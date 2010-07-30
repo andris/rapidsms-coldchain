@@ -103,6 +103,18 @@ def edit_device(req, pk):
         #Make sure they clicked submit
         if req.POST.get("submit", ""):
             if form.is_valid():
+                
+                #A test to see if we are going to need to send a CFG update
+                #to the device or if we've just changed something internal
+                #presave_device = get_object_or_404(SmartConnectClient, pk=device.pk)
+                #send_message=True
+                #if( device.low_thresh == presave_device.low_thresh ):
+                #    send_message=False
+                
+                #print("Comparing %s" % presave_device.low_thresh)    
+                #print("Comparint %s" % device.low_thresh)    
+                #print("Send_message variable is %s" % send_message)
+                
                 form.save()
                 
                 #prepare the config string to send to device
