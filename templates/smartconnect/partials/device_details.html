@@ -11,40 +11,43 @@
                 <td>Device IMEI:</td>
                 <td>{% if smartconnectdevice.alias %}{{ smartconnectdevice.alias }}{% else %}<span class="na">{% trans "n/a" %}</span>{% endif %}</td>
                 <td></td>
-                <td>Report Frequency:</td>
-                <td>{{ smartconnectdevice.report_freq }} min.</td>
-            </tr>
-            <tr>
                 <td>Firmware Version:</td>
                 <td>{{ smartconnectdevice.fw_version }}</td>
+            </tr>
+            <tr>
+                <td>Device Name:</td>
+                <td>{% if smartconnectdevice.full_name %}{{ smartconnectdevice.full_name }}{% else %}<span class="na">{% trans "n/a" %}</span>{% endif %}</td>
                 <td></td>
-                <td>Alert Frequency:</td>
-                <td>{{ smartconnectdevice.alert_freq }} min.</td>
+                <td>Report Frequency:</td>
+                <td>{{ smartconnectdevice.report_freq }} min.</td>
             </tr>
             <tr>
                 <td>Alert Status:</td>
                 {% if smartconnectdevice.alert_status %}<td class="sc_alert">{% else %}<td class="sc_ok">{% endif %}</td>
                 <td></td>
-                <td>High Temp. Threshold:</td>
-                <td>{{ smartconnectdevice.high_thresh|to_celcius  }}&deg C</td>
+                <td>Alert Frequency:</td>
+                <td>{{ smartconnectdevice.alert_freq }} min.</td>
             </tr>
             <tr>
                 <td>Current Temp.:</td>
                 <td>{{ smartconnectdevice.current_temp|to_celcius }}&deg C</td>
                 <td></td>
-                <td>Low Temp. Threshold:</td>
-                <td>{{ smartconnectdevice.low_thresh|to_celcius  }}&deg C</td>           
+                <td>High Temp. Threshold:</td>
+                <td>{{ smartconnectdevice.high_thresh|to_celcius  }}&deg C</td>
             </tr>
             <tr>
                 <td>Last Report:</td>
                 <td>{{ smartconnectdevice.last_seen|to_local_time }}</td>
                 <td></td>
-                <td>Phone number:</td>
-                <td>{{ smartconnectdevice.connection.identity }}</td>
+                <td>Low Temp. Threshold:</td>
+                <td>{{ smartconnectdevice.low_thresh|to_celcius  }}&deg C</td>
             </tr>
             <tr>
                 <td>Watcher group:</td>
                 <td>{{ smartconnectdevice.watchers }}</td>
+                <td></td>
+                <td>Phone number:</td>
+                <td>{{ smartconnectdevice.connection.identity }}</td>
             </tr>
             <tr>
                 <td>Last Message:</td>

@@ -300,7 +300,14 @@ def update_reporter(req, rep):
         if grp.pk in del_grps:
             del_grps.remove(grp.pk)
     
-    
+    #Must unlink all SmartConnectDevices and the
+    #Global prefs prior to deleting, otherwise
+    #the SQL CASCADE DELETE will wipe them
+    to_delete = rep.groups.filter(pk__in=del_grps)
+    for del_grp in to_delete:
+        del_grp.smartconnectpreferences_set.clear()
+        del_grp.smartconnectclient_set.clear()
+        
     # delete all of the connections and groups 
     # which were NOT in the form we just received
     rep.connections.filter(pk__in=del_conns).delete()
@@ -510,7 +517,14 @@ def edit_group(req, pk):
         # the object, then and redirect
         if req.POST.get("delete", ""):
             pk = grp.pk
+            
+            #Must unlink global prefs and smartconnect devices first
+            #if we don't do this, Django will do a SQL DELETE CASCADE
+            #and wipe everything.
+            grp.smartconnectpreferences_set.clear()
+            grp.smartconnectclient_set.clear()
             grp.delete()
+            
             
             return message(req,
                 "Group %d deleted" % (pk),

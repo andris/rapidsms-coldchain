@@ -186,6 +186,8 @@ class App (rapidsms.app.App):
                 self.handled = False
                 return self.handled
 
+            #Note that we store ALTs and RPTs in the same
+            #kind of object.  Makes graphing easy
             report = SmartConnectReport(
                 reporting_device=smart_connect_device,
                 connection=message.persistant_connection,
@@ -217,6 +219,8 @@ class App (rapidsms.app.App):
 
         self.handled = True
 
+    #TODO: Unify processing of ALT and RPT.  
+    #Logic is very similar
     kw.prefix = "ALT"
     @kw("(whatever)")
     def receive_alert(self, message, contents):
@@ -265,13 +269,15 @@ class App (rapidsms.app.App):
                 smart_connect_device.save()
                 
                 #if this device has watchers, message them
-                #on last known connection
+                #on last known connection.  Currently they receive an SMS on 
+                #_every_ alert from the device. Another option would be to only
+                #message watchers on first alert and clear of alert.
                 if( smart_connect_device.watchers != None and smart_connect_device.watchers.members() > 0 ):
                     watchers = smart_connect_device.watchers.reporters.all()
                 
                     #Sloppy, we should convert from K to C in a function
-                    alert_text = 'SmartConnect ALERT from device %(imei)s.  Current temperature is %(temp)d%(degree)s C' % {
-                        'imei': smart_connect_device.alias,
+                    alert_text = 'SmartConnect ALERT from device %(name)s.  Current temperature is %(temp)d%(degree)s C' % {
+                        'name': smart_connect_device.full_name(),
                         'temp': report.value-273,
                         'degree': " deg."
                     }
