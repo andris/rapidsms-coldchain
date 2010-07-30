@@ -201,10 +201,12 @@ class App (rapidsms.app.App):
             self.debug("RPT received--" + str(report))
             
             #Store the most recent values in the device
-            #itself.  Would be good to have a table for this
-            #to accept arbitrary alert/event types
+            #itself for easy display
+            #TODO: For future functionality we should 
+            #have a table to allow arbitrary alert and 
+            #report types
             smart_connect_device.alert_status = report.is_alert
-            if ( report.type == "tmp" ):
+            if ( report.type == "TMP" ):
                 smart_connect_device.current_temp=report.value
                 #also, stop alerting since this is a non alert report
                 smart_connect_device.is_alert=False
@@ -258,7 +260,7 @@ class App (rapidsms.app.App):
                 message.respond("@ACK ALT!")
            
             #Start Temperature specific processing here    
-            if ( report.type == "tmp" ):
+            if ( report.type == "TMP" ):
                 smart_connect_device.current_temp=report.value
                 smart_connect_device.save()
                 

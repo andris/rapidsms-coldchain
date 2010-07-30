@@ -39,7 +39,7 @@
         var d = [];
         
         {% for report in reports %}
-            d.push([ {{ report.time|to_js_timestamp }}, {{ report.value|to_celcius }}]);
+            d.push([ {{ report.time|to_local_js_timestamp }}, {{ report.value|to_celcius }}]);
         {% endfor %}
         
         //If we have no data, don't plot

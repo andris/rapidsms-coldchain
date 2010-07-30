@@ -29,7 +29,7 @@ def index(req):
 
 def message(req, msg, link=None):
     return render_to_response(req,
-        "message.html", {
+        "smartconnect/message.html", {
             "message": msg,
             "link": link
     })

@@ -17,9 +17,31 @@ def device_details(smartconnectdevice):
 @register.filter
 def to_js_timestamp(value):
     try:
-        return int(calendar.timegm(to_local_time(value).timetuple())*1000)
+        #Use this conversion if using the google graphs. 
+        #Google graphs expects milliseconds since the epoch in GMT
+        return int(calendar.timegm(value.timetuple())*1000)
     except AttributeError:
         return ''
+
+@register.filter
+def to_local_js_timestamp(value):
+    try:
+        #Use this conversion if using the flot graphs.  It needs the 
+        #Flot graphs expect milliseconds since the epoch in local.
+        return int(calendar.timegm(to_local_time(value).timetuple())*1000)
+
+    except AttributeError:
+        return ''
+        
+#Fot annotating google charts
+@register.filter
+def get_annotation(report):
+    if( report.is_alert ):
+        label='Alert'
+        text="<br>Actual: %(temp)s\u00B0C <br>Max: %(max)s\u00B0C <br>Min: %(min)s\u00B0C" % {'temp': to_celcius(report.value), 'max': to_celcius(report.ceiling), 'min': to_celcius(report.floor)}
+        return '\'%(label)s\',\'%(text)s\'' % {'label': label, 'text': text}
+        
+    return "undefined,undefined"
 
 @register.filter
 def to_celcius(kelvin_temp):

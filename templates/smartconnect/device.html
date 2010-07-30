@@ -10,6 +10,38 @@
 <script type="text/javascript" src="/static/reporters/javascripts/cloneable.js"></script>
 <script type="text/javascript" src="/static/smartconnect/flot/jquery.js"></script>
 <script type="text/javascript" src="http://www.google.com/jsapi"></script>
+
+<script type="text/javascript">
+// Load the Visualization API and the piechart package.
+google.load('visualization', '1', {'packages':['annotatedtimeline']});
+
+// Set a callback to run when the Google Visualization API is loaded.
+google.setOnLoadCallback(drawChart);
+
+// Callback that creates and populates a data table,
+// instantiates the pie chart, passes in the data and
+// draws it.
+function drawChart() {
+
+// Create our data table.
+    var data = new google.visualization.DataTable();
+    data.addColumn('datetime', 'Time');
+    data.addColumn('number', 'Temperature');
+    data.addColumn('string', 'title1');
+    data.addColumn('string', 'text1');
+
+    {% for report in reports %}
+        data.addRows([
+          [new Date({{ report.time|to_js_timestamp }}),{{ report.value|to_celcius }},{{ report|get_annotation|safe }}]
+        ]);
+    {% endfor %}
+
+    // Instantiate and draw our chart, passing in some options.
+    var chart = new google.visualization.AnnotatedTimeLine(document.getElementById('google_graph'));
+    chart.draw(data, {displayAnnotations: true, annotationsWidth: 17, allowHtml: true, allValuesSuffix: "\u00B0C"});
+ }
+</script>
+
 {% endblock %}
 
 {% block content %}
@@ -24,42 +56,15 @@
             <a href="/smartconnect/edit/{{ smartconnectdevice.pk }}" class="edit">{% trans "Edit" %}</a>
 </div>
 
-<div class="bottom">    
+<div class="bottom">
     <h2>{% trans "Temperature History" %}</h2>
 
-    <div id="google_graph" style="width:800px;height:300px;"></div>
-    
-    <script type="text/javascript">
-    // Load the Visualization API and the piechart package.
-    google.load('visualization', '1', {'packages':['annotatedtimeline']});
-      
-    // Set a callback to run when the Google Visualization API is loaded.
-    google.setOnLoadCallback(drawChart);
-      
-    // Callback that creates and populates a data table, 
-    // instantiates the pie chart, passes in the data and
-    // draws it.
-    function drawChart() {
-    
-      // Create our data table.
-        var data = new google.visualization.DataTable();
-        data.addColumn('datetime', 'Time');
-        data.addColumn('number', 'Temperature (\u00B0C)');
-        data.addColumn('string', 'title1');
-        data.addColumn('string', 'text1');
-
-        {% for report in reports %}
-            data.addRows([
-              [new Date({{ report.time|to_js_timestamp }}),{{ report.value|to_celcius }},undefined,undefined]
-            ]);
-        {% endfor %}
-
-        // Instantiate and draw our chart, passing in some options.
-        var chart = new google.visualization.AnnotatedTimeLine(document.getElementById('google_graph'));
-        chart.draw(data, {displayAnnotations: true});
-      }
-    </script>
-    
+    <div id="google_graph" style="width:800px;height:300px"></div>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
 </div>
 </div>
 {% endblock %}
