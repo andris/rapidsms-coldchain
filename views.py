@@ -104,40 +104,48 @@ def edit_device(req, pk):
         if req.POST.get("submit", ""):
             if form.is_valid():
                 
-                #A test to see if we are going to need to send a CFG update
+                #Test to see if we are going to need to send a CFG update
                 #to the device or if we've just changed something internal
-                #presave_device = get_object_or_404(SmartConnectClient, pk=device.pk)
-                #send_message=True
-                #if( device.low_thresh == presave_device.low_thresh ):
-                #    send_message=False
+                #pre_edit=get_object_or_404(SmartConnectClient, pk=device.pk)
+                send_message=True
+                if( device.low_thresh == form.cleaned_data['low_thresh'] and
+                    device.high_thresh == form.cleaned_data['high_thresh'] and
+                    device.report_freq == form.cleaned_data['report_freq'] and
+                    device.alert_freq == form.cleaned_data['alert_freq'] ):
+                        send_message=False
                 
-                #print("Comparing %s" % presave_device.low_thresh)    
-                #print("Comparint %s" % device.low_thresh)    
-                #print("Send_message variable is %s" % send_message)
-                
+                #Write changes to db
                 form.save()
                 
-                #prepare the config string to send to device
-                config_string='@CFG SYS,1,%(low)d,%(high)d,%(rpt_freq)d,%(alt_freq)d,0!' % {
-                    'low': device.low_thresh,
-                    'high': device.high_thresh,
-                    'rpt_freq': device.report_freq,
-                    'alt_freq': device.alert_freq
-                }
+                #Only send an SMS to the device if the user changed something
+                #that the device needs to know about
+                if( send_message ):
+                    #prepare the config string to send to device
+                    config_string='@CFG SYS,1,%(low)d,%(high)d,%(rpt_freq)d,%(alt_freq)d,0!' % {
+                        'low': device.low_thresh,
+                        'high': device.high_thresh,
+                        'rpt_freq': device.report_freq,
+                        'alt_freq': device.alert_freq
+                    }
                 
-                #Set the device as unconfigured in our system 
-                #so when we see the configured flag go green we know
-                #it received the config from us
-                device.is_configured=False
-                device.save()
+                    #Set the device as unconfigured in our system 
+                    #so when we see the configured flag go green we know
+                    #it received the config from us
+                    device.is_configured=False
+                    device.save()
             
-                #Send the config message out to the device via a call to the ajax app
-                thread = Thread(target=_send_message,args=(req, pk, config_string))
-                thread.start()            
-                
-                #Tell the user all went well
+                    #Send the config message out to the device via a call to the ajax app
+                    thread = Thread(target=_send_message,args=(req, pk, config_string))
+                    thread.start()
+                    
+                    #If we changed the device, let the user know
+                    return message(req,
+                        "SmartConnect IMEI:  %s successfully edited, new config sent to device" % (device.alias),
+                        link="/smartconnect")
+                    
+                #Otherwise tell the user everything's ok but we didn't need to send a CFG message
                 return message(req,
-                    "SmartConnect IMEI:  %s successfully edited, new config sent to device" % (device.alias),
+                    "SmartConnect IMEI:  %s successfully edited." % (device.alias),
                     link="/smartconnect")
                 
             #oops, user has errors in form input.  Ask them to correct and resubmit.
