@@ -6,9 +6,12 @@ from smartconnect.models import *
 from rapidsms.utils import *
 
 from django import template
-
-
 register = template.Library()
+
+from django.utils.timesince import timesince
+from django.utils.safestring import mark_safe
+from django.utils.html import conditional_escape
+from django.template.defaultfilters import date as filter_date, time as filter_time
 
 @register.inclusion_tag("smartconnect/partials/device_details.html")
 def device_details(smartconnectdevice):
@@ -59,3 +62,53 @@ def to_local_time(value):
         return aware_dt.astimezone(zone)
     except AttributeError:
         return ''
+
+
+@register.filter()
+def sc_last_seen(value, autoescape=None):
+    """Formats a datetime as an HTML string representing a
+       short digest of the time since that date, contained
+       by a <span>, with a title (tooltip) of the full date."""
+    
+    # if autoescaping is on, then we will
+    # need to pass outgoing strings through
+    # cond_esc, or django will escape the HTML
+    if autoescape: esc = conditional_escape
+    else:          esc = lambda x: x
+
+    try:
+        if value:
+        
+            #convert to time aware local time first
+            localized_value = to_local_time(value)
+            
+            # looks like we have a valid date - return
+            # a span containing the long and short version
+            ts = timesince(localized_value)
+            mag = magnitude_ago(localized_value)
+            long = "on %s at %s" % (filter_date(localized_value), filter_time(localized_value))
+            out = '<span class="last-seen %s" title="%s">%s ago</span>' % (esc(mag), esc(long), esc(ts))
+        
+        # abort if there is no date (it's
+        # probably just a null model field)
+        else:
+            out = '<span class="last-seen n/a">Never</span>'
+    
+    # something went wrong! don't blow up
+    # the entire template, just flag it
+    except (ValueError, TypeError):
+        out = '<span class="last-seen error">Error</span>'
+    
+    return mark_safe(out)
+sc_last_seen.needs_autoescape = True
+
+#Should import this from reporters, but needed it for the modified
+#last_seen to support utc time storage
+def magnitude_ago(value):
+    """Given a datetime, returns a string containing the
+       most appropriate unit to use when describing the
+       time since that date, out of: minutes, hours, days,
+       months, years."""
+    
+    # TODO: implement
+    return "hours"

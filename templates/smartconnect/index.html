@@ -32,7 +32,7 @@
                 {% if smartconnectdevice.alert_status %}<td class="sc_alert">{% else %}<td class="sc_ok">{% endif %}</td>
                 {% if smartconnectdevice.is_configured %}<td class="sc_ok">{% else %}<td class="sc_warning">{% endif %}</td>
                 <td>{{ smartconnectdevice.current_temp|to_celcius }}&deg C</td>
-                <td>{{ smartconnectdevice.last_seen|last_seen }}</td>
+                <td>{{ smartconnectdevice.last_seen|sc_last_seen }}</td>
             </tr>{% endfor %}{% else %}
             <tr class="no-data">
                 <td colspan="6">
