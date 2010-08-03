@@ -34,6 +34,13 @@ def message(req, msg, link=None):
             "link": link
     })
 
+#TODO: should move this to a utils class    
+def to_celcius(kelvin_temp):
+    return int( kelvin_temp - 273 )
+
+def to_kelvin(celcius_temp):
+    return int( celcius_temp + 273 )
+
 @login_required
 def display_device(req, pk):
     device = get_object_or_404(SmartConnectClient, pk=pk)
@@ -87,35 +94,45 @@ def delete_device(req, pk):
 @login_required
 def edit_device(req, pk):
     device = get_object_or_404(SmartConnectClient, pk=pk)
-    #device = SmartConnectClient.objects.get(pk=pk)
 
     def get(req):
         form = SmartConnectDeviceForm(instance=device)
+        
+        #need a separate form to collect user input in celcius
+        #we convert to kelvin before storing
+        tempform = SmartConnectTempForm(initial={'low_thresh_c': to_celcius(device.low_thresh), 'high_thresh_c': to_celcius(device.high_thresh)})
   
         return render_to_response(req,'smartconnect/device_edit.html', {
             'form':     form,
+            'tempform': tempform,
             "device":   device,
         })
         
     def post(req):
         form = SmartConnectDeviceForm(req.POST, instance=device)
+        tempform = SmartConnectTempForm(req.POST)
         
         #Make sure they clicked submit
         if req.POST.get("submit", ""):
-            if form.is_valid():
+            if (form.is_valid() and tempform.is_valid()):
+            
+                form_low_thresh = to_kelvin(tempform.cleaned_data['low_thresh_c'])
+                form_high_thresh = to_kelvin(tempform.cleaned_data['high_thresh_c'])
                 
                 #Test to see if we are going to need to send a CFG update
                 #to the device or if we've just changed something internal
-                #pre_edit=get_object_or_404(SmartConnectClient, pk=device.pk)
                 send_message=True
-                if( device.low_thresh == form.cleaned_data['low_thresh'] and
-                    device.high_thresh == form.cleaned_data['high_thresh'] and
+                if( device.low_thresh == form_low_thresh and
+                    device.high_thresh == form_high_thresh and
                     device.report_freq == form.cleaned_data['report_freq'] and
                     device.alert_freq == form.cleaned_data['alert_freq'] ):
                         send_message=False
                 
                 #Write changes to db
                 form.save()
+                device.low_thresh = form_low_thresh
+                device.high_thresh = form_high_thresh
+                device.save()
                 
                 #Only send an SMS to the device if the user changed something
                 #that the device needs to know about
@@ -152,6 +169,8 @@ def edit_device(req, pk):
             else:
                 return render_to_response(req,'smartconnect/device_edit.html', {
                     'form':         form,
+                    'tempform':     tempform,
+                    'device':       device,
                 })
         
         #Must have clicked cancel.  Back to index

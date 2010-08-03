@@ -8,11 +8,15 @@ class SmartConnectDeviceForm(ModelForm):
         fields = (
             'first_name',
             'last_name',
-            'low_thresh', 
-            'high_thresh', 
+            #'low_thresh', 
+            #'high_thresh', 
             'report_freq', 
             'alert_freq',
             'watchers')
+            
+class SmartConnectTempForm(forms.Form):
+    low_thresh_c = forms.IntegerField(required=True)
+    high_thresh_c = forms.IntegerField(required=True)
 
 class SmartConnectPreferencesForm(ModelForm):
     class Meta:

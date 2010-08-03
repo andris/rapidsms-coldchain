@@ -3,7 +3,7 @@
 {% load smartconnect-tags %}
 {% load pagination-tags %}
 {% load i18n %}
-{% block title %}{% trans "Test form" %}{% endblock %}
+{% block title %}{% trans "Edit Device" %}{% endblock %}
 
 {% block content %}
 
@@ -20,16 +20,17 @@
         {{ form.last_name }}
         <label class="suffix">{% trans "Last Name" %} {{ form.last_name.errors }}</label>
     </div>
-    
+
+
     <label>{% trans "Thresholds" %}</label>
     <div>
-        {{ form.low_thresh }}
-        <label class="suffix">{% trans "Low Temperature" %} (&deg;K) {{ form.low_thresh.errors }}</label>
+        {{ tempform.low_thresh_c }}
+        <label class="suffix">{% trans "Low Temperature" %} (&deg;C) {{ tempform.low_thresh_c.errors }}</label>
         <br>
-        {{ form.high_thresh }}     
-        <label class="suffix">{% trans "High Temperature" %} (&deg;K) {{ form.high_thresh.errors }}</label>
+        {{ tempform.high_thresh_c }}
+        <label class="suffix">{% trans "High Temperature" %} (&deg;C) {{ tempform.high_thresh_c.errors }}</label>
     </div>
-    
+
     <label>{% trans "Reporting Frequency" %}</label>
     <div>
         {{ form.report_freq }}     
