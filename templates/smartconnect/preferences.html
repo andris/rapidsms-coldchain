@@ -17,11 +17,11 @@ The values set here will be used to configure any new, unknown SmartConnect devi
     <form action="/smartconnect/preferences" method="post">
     <label>{% trans "Thresholds" %}</label>
     <div>
-        {{ form.default_low_thresh }}
-        <label class="suffix">{% trans "Low Temperature" %} (&deg;K) {{ form.default_low_thresh.errors }}</label>
+        {{ tempform.low_thresh_c }}
+        <label class="suffix">{% trans "Low Temperature" %} (&deg;C) {{ tempform.low_thresh_c.errors }}</label>
         <br>
-        {{ form.default_high_thresh }}     
-        <label class="suffix">{% trans "High Temperature" %} (&deg;K) {{ form.default_high_thresh.errors }}</label>
+        {{ tempform.high_thresh_c }}
+        <label class="suffix">{% trans "High Temperature" %} (&deg;C) {{ tempform.high_thresh_c.errors }}</label>
     </div>
     
     <label>{% trans "Reporting Frequency" %}</label>

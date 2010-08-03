@@ -616,23 +616,35 @@ def edit_preferences(req):
 
     def get(req):
         form = SmartConnectPreferencesForm(instance=prefs)
+        tempform = SmartConnectTempForm(initial={
+            'low_thresh_c': to_celcius(prefs.default_low_thresh), 
+            'high_thresh_c': to_celcius(prefs.default_high_thresh)})
+        
   
         return render_to_response(req,'smartconnect/preferences.html', {
             'form':     form,
+            'tempform': tempform,
             "prefs":    prefs,
         })
         
     def post(req):
         form = SmartConnectPreferencesForm(req.POST, instance=prefs)
+        tempform = SmartConnectTempForm(req.POST)
         
         #Make sure they clicked submit
         if req.POST.get("submit", ""):
-            if form.is_valid():
+            if ( form.is_valid() and tempform.is_valid() ):
+
+                form_low_thresh = to_kelvin(tempform.cleaned_data['low_thresh_c'])
+                form_high_thresh = to_kelvin(tempform.cleaned_data['high_thresh_c'])
+
                 form.save()
                 
-                #TODO: might want to offer an option to blast
-                #the config to all devices here later
-                print("PONG")
+                #get the user's celcius input and save to
+                #prefs as Kelvin.
+                prefs.default_low_thresh = form_low_thresh
+                prefs.default_high_thresh = form_high_thresh
+                prefs.save()
                 
                 return message(req,
                     "SmartConnect:  Preferences successfully edited",
@@ -642,6 +654,7 @@ def edit_preferences(req):
             else:
                 return render_to_response(req,'smartconnect/preferences.html', {
                     'form':         form,
+                    'tempform':     tempform,
                 })
         
         #Must have clicked cancel.  Back to index
