@@ -14,7 +14,6 @@ from django.shortcuts import get_object_or_404
 from django.db import transaction
 
 from rapidsms.webui.utils import *
-#from rapidsms import Message
 from smartconnect.models import *
 from smartconnect.forms import *
 from reporters.models import *
