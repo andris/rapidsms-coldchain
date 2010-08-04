@@ -6,7 +6,7 @@ class SmartConnectDeviceForm(ModelForm):
     class Meta:
         model = SmartConnectClient
         fields = (
-            'first_name',
+            #'first_name',
             'last_name',
             #'low_thresh', 
             #'high_thresh', 

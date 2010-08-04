@@ -12,13 +12,10 @@
 <div class="module">
 <div class="scform">
     <form action="/smartconnect/edit/{{ device.pk }}" method="post">
-    <label>{% trans "Device Name" %}</label>
+    <label>{% trans "Device Identification" %}</label>
     <div>
-        {{ form.first_name }}
-        <label class="suffix">{% trans "First Name" %} {{ form.first_name.errors }}</label>
-        <br>
         {{ form.last_name }}
-        <label class="suffix">{% trans "Last Name" %} {{ form.last_name.errors }}</label>
+        <label class="suffix">{% trans "Device Name" %} {{ form.last_name.errors }}</label>
     </div>
 
 
